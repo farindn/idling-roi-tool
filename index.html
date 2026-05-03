@@ -1,0 +1,2083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Idling ROI Tool — Design Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=block" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%2325457B'/><path d='M7 23 A10 10 0 0 1 25 23' stroke='white' stroke-width='2.5' fill='none' stroke-linecap='round'/><line x1='16' y1='23' x2='21' y2='14' stroke='%2300B8FF' stroke-width='2.5' stroke-linecap='round'/><circle cx='16' cy='23' r='2.5' fill='white'/></svg>">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ══════════════════════════════════════════════════════════
+   Arkivleet Design System — Idling ROI Tool Mockup
+   ══════════════════════════════════════════════════════════ */
+
+:root {
+  /* Colors */
+  --color-primary: #25457B;
+  --color-primary-hover: #1b3663;
+  --color-primary-light: #f5f7fa;
+  --color-accent: #00B8FF;
+  --color-white: #FFFFFF;
+  --color-slate: #607690;
+  --color-slate-hover: #4f5e75;
+  --color-success: #13AA09;
+  --color-error: #FE4A3F;
+  --color-background: #f5f7fa;
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #f9fbfd;
+  --color-code-bg: #f8f8f8;
+  --color-border: #cbd3dc;
+  --color-border-light: #e1e5eb;
+  --color-border-subtle: #f0f0f0;
+  --overlay-backdrop: rgba(0, 0, 0, 0.3);
+
+  /* Typography */
+  --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SF Mono', Consolas, monospace;
+  --font-size-xs: 0.8rem;
+  --font-size-sm: 0.85rem;
+  --font-size-md: 0.9rem;
+  --font-size-lg: 0.95rem;
+  --font-size-xl: 1rem;
+  --font-size-2xl: 1.1rem;
+  --font-size-3xl: 1.2rem;
+  --font-size-4xl: 1.25rem;
+  --font-size-5xl: 1.8rem;
+  --font-size-6xl: 2rem;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  /* Spacing */
+  --space-3: 0.25rem;
+  --space-5: 0.4rem;
+  --space-6: 0.5rem;
+  --space-8: 0.65rem;
+  --space-9: 0.75rem;
+  --space-10: 0.8rem;
+  --space-11: 1rem;
+  --space-12: 1.2rem;
+  --space-13: 1.5rem;
+  --space-14: 2rem;
+  --space-15: 3rem;
+
+  /* Layout */
+  --container-max: 1200px;
+  --container-login: 380px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  /* Borders */
+  --border-width: 1px;
+  --border-width-thick: 2px;
+  --border-width-loader: 6px;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-full: 50%;
+
+  /* Motion */
+  --duration-fast: 0.2s;
+  --duration-normal: 0.4s;
+  --duration-slow: 0.5s;
+  --duration-loader: 0.8s;
+}
+
+/* Reset */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Icons — OUTLINED (FILL 0) */
+.material-symbols-rounded {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xl);
+  background: var(--color-background);
+  color: var(--color-primary);
+  line-height: 1.5;
+}
+
+input, button, textarea, select { font-family: inherit; }
+
+/* ══════════════════════════════════════════════════════════
+   MOCKUP NAVIGATOR
+   ══════════════════════════════════════════════════════════ */
+.mockup-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  background: #1a1a2e;
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  z-index: 9999;
+  flex-wrap: wrap;
+}
+
+.mockup-nav-title {
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-right: 0.5rem;
+}
+
+.mockup-nav button {
+  background: #2d2d44;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.mockup-nav button:hover { background: #3d3d5c; }
+.mockup-nav button.active { background: var(--color-primary); }
+.mockup-nav button.nb-success { background: rgba(19,170,9,0.22); }
+.mockup-nav button.nb-success:hover { background: rgba(19,170,9,0.38); }
+.mockup-nav button.nb-error   { background: rgba(254,74,63,0.22); }
+.mockup-nav button.nb-error:hover   { background: rgba(254,74,63,0.38); }
+.mockup-nav button.nb-info    { background: rgba(0,184,255,0.18); }
+.mockup-nav button.nb-info:hover    { background: rgba(0,184,255,0.3); }
+
+.mockup-nav .viewport-info {
+  margin-left: auto;
+  color: rgba(255,255,255,0.55);
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+}
+.nav-divider      { color: rgba(255,255,255,0.2); font-size: 1.1rem; line-height: 1; }
+.nav-section-label { color: rgba(255,255,255,0.42); font-size: 0.78rem; white-space: nowrap; }
+
+.screen-container { margin-top: 56px; }
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ══════════════════════════════════════════════════════════
+   NOTIFICATION MODAL
+   ══════════════════════════════════════════════════════════ */
+.notif-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay-backdrop);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10002;
+}
+.notif-overlay.active { display: flex; }
+.notif-modal-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: 2.5rem;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  max-width: 360px;
+  width: 90%;
+}
+.notif-icon-wrap {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-12);
+}
+.notif-icon-wrap .material-symbols-rounded {
+  font-size: 28px;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+.ni-success { background: rgba(19,170,9,0.1);   color: var(--color-success); }
+.ni-error   { background: rgba(254,74,63,0.1);  color: var(--color-error); }
+.ni-info    { background: rgba(37,69,123,0.08); color: var(--color-primary); }
+.ni-warn    { background: rgba(245,158,11,0.1); color: #f59e0b; }
+.notif-title {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+  margin-bottom: var(--space-6);
+}
+.notif-msg {
+  font-size: var(--font-size-md);
+  color: var(--color-slate);
+  line-height: 1.65;
+  margin-bottom: var(--space-13);
+}
+.notif-btns { display: flex; flex-direction: column; gap: var(--space-9); }
+
+/* ══════════════════════════════════════════════════════════
+   BUTTONS
+   ══════════════════════════════════════════════════════════ */
+.btn-primary {
+  display: flex;
+  width: 100%;
+  padding: var(--space-10);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-normal);
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  transition: background-color var(--duration-fast) ease;
+}
+.btn-primary .material-symbols-rounded { font-size: 20px; }
+.btn-primary:hover { background-color: var(--color-primary-hover); }
+.btn-primary:disabled { background-color: #aabbd5; cursor: not-allowed; }
+
+.btn-secondary {
+  display: flex;
+  width: 100%;
+  padding: var(--space-10);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-normal);
+  background-color: var(--color-slate);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  transition: background-color var(--duration-fast) ease;
+}
+.btn-secondary .material-symbols-rounded { font-size: 20px; }
+.btn-secondary:hover { background-color: var(--color-slate-hover); }
+
+.btn-tertiary {
+  display: flex;
+  width: 100%;
+  padding: var(--space-10);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-normal);
+  background-color: var(--color-border-light);
+  color: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  transition: background-color var(--duration-fast) ease;
+}
+.btn-tertiary .material-symbols-rounded { font-size: 20px; }
+.btn-tertiary:hover { background-color: var(--color-border); }
+
+.btn-sm {
+  display: inline-flex;
+  padding: var(--space-5) var(--space-9);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  transition: background-color var(--duration-fast) ease;
+}
+.btn-sm .material-symbols-rounded { font-size: 16px; }
+.btn-sm:hover { background-color: var(--color-primary-hover); }
+
+/* ══════════════════════════════════════════════════════════
+   SCREEN 1: LOGIN
+   ══════════════════════════════════════════════════════════ */
+.login-wrap {
+  min-height: calc(100vh - 56px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-14);
+  background: var(--color-background);
+}
+
+.login-box {
+  width: 100%;
+  max-width: var(--container-login);
+  padding: var(--space-14);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+}
+
+.login-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-bottom: 0.2rem;
+}
+.login-logo .material-symbols-rounded {
+  font-size: 32px;
+  color: var(--color-primary);
+}
+.login-logo span:last-child {
+  font-size: var(--font-size-6xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+.login-sub {
+  font-size: var(--font-size-xl);
+  color: var(--color-slate);
+  margin-bottom: var(--space-12);
+}
+
+.ig {
+  margin-bottom: var(--space-11);
+  text-align: left;
+}
+.ig label {
+  display: block;
+  font-size: var(--font-size-xl);
+  color: var(--color-primary);
+  margin-bottom: var(--space-5);
+  font-weight: var(--font-weight-normal);
+}
+.if {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-8) var(--space-11);
+}
+.if .material-symbols-rounded {
+  font-size: 1.4rem;
+  color: var(--color-slate);
+  flex-shrink: 0;
+}
+.if input, .if select {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: var(--font-size-xl);
+  font-family: var(--font-sans);
+  color: var(--color-primary);
+  outline: none;
+}
+.if input::placeholder { color: #b0bec5; }
+.if .unit {
+  font-size: var(--font-size-xs);
+  color: var(--color-slate);
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+}
+.if input[type=number] { font-family: var(--font-mono); }
+
+.login-note {
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-slate);
+  margin-top: var(--space-11);
+}
+
+/* Login Loading Modal */
+.login-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay-backdrop);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+.login-modal-overlay.active { display: flex; }
+.login-modal {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: 2.5rem;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  max-width: 320px;
+  width: 90%;
+}
+.login-spinner {
+  width: 48px;
+  height: 48px;
+  border: var(--border-width-loader) solid var(--color-border-light);
+  border-top-color: var(--color-primary);
+  border-radius: var(--radius-full);
+  animation: rotate var(--duration-loader) linear infinite;
+  margin: 0 auto var(--space-13);
+}
+@keyframes rotate { to { transform: rotate(360deg); } }
+.login-modal-title {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+  margin-bottom: var(--space-5);
+}
+.login-modal-sub { font-size: var(--font-size-md); color: var(--color-slate); }
+
+/* ══════════════════════════════════════════════════════════
+   NAVBAR
+   ══════════════════════════════════════════════════════════ */
+.navbar {
+  background-color: var(--color-primary);
+  padding: var(--space-11) var(--space-14);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-9);
+}
+.nav-icon-wrap {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nav-icon-wrap .material-symbols-rounded { font-size: 20px; color: var(--color-white); }
+.nav-title {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-white);
+}
+.nav-subtitle {
+  font-size: var(--font-size-xs);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.nav-user {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-9);
+  cursor: pointer;
+}
+.nav-user-txt { text-align: right; }
+.nav-email {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-white);
+}
+.nav-dbid {
+  font-size: var(--font-size-xs);
+  color: rgba(255, 255, 255, 0.5);
+}
+.nav-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-white);
+}
+.nav-avatar .material-symbols-rounded { font-size: 18px; }
+
+.logout-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-5);
+  display: none;
+  min-width: 140px;
+  z-index: 100;
+}
+.logout-dropdown.active { display: block; }
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  width: 100%;
+  padding: var(--space-8) var(--space-9);
+  background: none;
+  border: none;
+  border-radius: var(--radius-xs);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-md);
+  color: var(--color-error);
+  cursor: pointer;
+  transition: background var(--duration-fast) ease;
+}
+.logout-btn:hover { background: rgba(254, 74, 63, 0.08); }
+.logout-btn .material-symbols-rounded { font-size: 18px; }
+
+/* ══════════════════════════════════════════════════════════
+   PAGE LAYOUT
+   ══════════════════════════════════════════════════════════ */
+.page {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: var(--space-14);
+}
+
+.page-hd { margin-bottom: 1.75rem; }
+.page-hd h1 {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+.page-hd p {
+  font-size: var(--font-size-md);
+  color: var(--color-slate);
+  margin-top: var(--space-3);
+}
+
+/* ══════════════════════════════════════════════════════════
+   SECTION CARDS
+   ══════════════════════════════════════════════════════════ */
+.sc {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-13);
+  margin-bottom: var(--space-12);
+}
+.sc-hd {
+  display: flex;
+  align-items: center;
+  gap: var(--space-9);
+  margin-bottom: var(--space-12);
+  padding-bottom: var(--space-11);
+  border-bottom: var(--border-width) solid var(--color-border-light);
+}
+.sc-ico {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: rgba(37, 69, 123, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.sc-ico .material-symbols-rounded { font-size: 20px; color: var(--color-primary); }
+.sc-ttl {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+.sc-sub { font-size: var(--font-size-xs); color: var(--color-slate); margin-top: 2px; }
+
+/* ══════════════════════════════════════════════════════════
+   GRIDS
+   ══════════════════════════════════════════════════════════ */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-11); }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-11); }
+.g4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: var(--space-11); }
+.g6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--space-11); }
+
+/* ══════════════════════════════════════════════════════════
+   STAT CARDS (Summary section)
+   ══════════════════════════════════════════════════════════ */
+.stat-card {
+  background: var(--color-background);
+  border-radius: var(--radius-sm);
+  padding: var(--space-11);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.stat-card.primary {
+  background: var(--color-primary);
+}
+.stat-card-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-slate);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.stat-card.primary .stat-card-label { color: rgba(255,255,255,0.6); }
+.stat-card-value {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-5xl);
+  color: var(--color-primary);
+  line-height: 1;
+}
+.stat-card.primary .stat-card-value { color: var(--color-white); }
+.stat-card-sub { font-size: var(--font-size-xs); color: var(--color-slate); }
+.stat-card.primary .stat-card-sub { color: rgba(255,255,255,0.55); }
+.stat-card-icon {
+  font-size: 20px;
+  color: var(--color-slate);
+  margin-bottom: var(--space-3);
+}
+.stat-card.primary .stat-card-icon { color: rgba(255,255,255,0.6); }
+
+/* ══════════════════════════════════════════════════════════
+   BANNERS
+   ══════════════════════════════════════════════════════════ */
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-9);
+  border-radius: var(--radius-sm);
+  padding: var(--space-9) var(--space-11);
+  margin-bottom: var(--space-12);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+.banner .material-symbols-rounded { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.banner-warn {
+  background: #fffbeb;
+  border: var(--border-width) solid #fcd34d;
+  color: #78350f;
+}
+.banner-warn .material-symbols-rounded { color: #f59e0b; }
+.banner-info {
+  background: #f0f7ff;
+  border: var(--border-width) solid #93c5fd;
+  color: #1e3a5f;
+}
+.banner-info .material-symbols-rounded { color: var(--color-primary); }
+
+/* ══════════════════════════════════════════════════════════
+   HINTS
+   ══════════════════════════════════════════════════════════ */
+.hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-slate);
+  margin-top: var(--space-5);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+.hint .material-symbols-rounded { font-size: 14px; flex-shrink: 0; margin-top: 2px; }
+
+/* ══════════════════════════════════════════════════════════
+   TABLES
+   ══════════════════════════════════════════════════════════ */
+.tbl-wrap { overflow-x: auto; }
+.rtbl {
+  width: 100%;
+  border-collapse: collapse;
+}
+.rtbl thead th {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  padding: var(--space-9) var(--space-11);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-normal);
+  text-align: left;
+}
+.rtbl thead th:first-child { border-top-left-radius: var(--radius-sm); }
+.rtbl thead th:last-child  { border-top-right-radius: var(--radius-sm); }
+.rtbl tbody td {
+  padding: var(--space-9) var(--space-11);
+  border-bottom: var(--border-width) solid var(--color-border-subtle);
+  font-size: var(--font-size-lg);
+  vertical-align: middle;
+}
+.rtbl tbody tr:last-child td { border-bottom: none; }
+.rtbl tbody tr:last-child td:first-child { border-bottom-left-radius: var(--radius-sm); }
+.rtbl tbody tr:last-child td:last-child  { border-bottom-right-radius: var(--radius-sm); }
+.rtbl tbody tr:nth-child(even) td { background-color: var(--color-surface-alt); }
+
+/* Fuel/settings table (compact inputs) */
+.ftbl { width: 100%; border-collapse: collapse; }
+.ftbl thead th {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  padding: var(--space-9) var(--space-11);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-normal);
+  text-align: left;
+}
+.ftbl thead th:first-child { border-top-left-radius: var(--radius-sm); }
+.ftbl thead th:last-child  { border-top-right-radius: var(--radius-sm); }
+.ftbl tbody td {
+  padding: var(--space-9) var(--space-11);
+  border-bottom: var(--border-width) solid var(--color-border-subtle);
+  font-size: var(--font-size-lg);
+  vertical-align: middle;
+}
+.ftbl tbody tr:last-child td { border-bottom: none; }
+.ftbl tbody tr:last-child td:first-child { border-bottom-left-radius: var(--radius-sm); }
+.ftbl tbody tr:last-child td:last-child  { border-bottom-right-radius: var(--radius-sm); }
+
+/* ══════════════════════════════════════════════════════════
+   BADGES
+   ══════════════════════════════════════════════════════════ */
+.fbadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+.fb-diesel  { background: #FFF3E0; color: #E65100; }
+.fb-petrol  { background: #fff8e1; color: #b45309; }
+.fb-ev      { background: #E8F5E9; color: #2E7D32; }
+.fb-hev     { background: #f0fdf4; color: #15803d; }
+.fb-phev    { background: #f5f0ff; color: #6d28d9; }
+.fb-unknown { background: #fff1f0; color: #c0392b; }
+
+/* ══════════════════════════════════════════════════════════
+   COMPACT INPUT FIELD (inside tables)
+   ══════════════════════════════════════════════════════════ */
+.if-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-5) var(--space-8);
+  background: var(--color-surface);
+}
+.if-sm input {
+  border: none;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  color: var(--color-primary);
+  outline: none;
+  width: 64px;
+}
+.if-sm input:focus { border-color: var(--color-primary); }
+.if-sm .unit {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-slate);
+  white-space: nowrap;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SMALL ACTION BUTTON (edit/open)
+   ══════════════════════════════════════════════════════════ */
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-9);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-sm);
+  background: transparent;
+  color: var(--color-primary);
+  border: var(--border-width) solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--duration-fast) ease, color var(--duration-fast) ease;
+}
+.btn-action .material-symbols-rounded { font-size: 15px; }
+.btn-action:hover { background: var(--color-primary); color: var(--color-white); }
+
+/* ══════════════════════════════════════════════════════════
+   FOOTER
+   ══════════════════════════════════════════════════════════ */
+.pfooter {
+  text-align: center;
+  padding: var(--space-14);
+  font-size: var(--font-size-md);
+  color: var(--color-slate);
+}
+
+/* ══════════════════════════════════════════════════════════
+   SCREEN 3: GENERATING
+   ══════════════════════════════════════════════════════════ */
+.gen-wrap {
+  position: relative;
+  overflow: hidden;
+  min-height: calc(100vh - 56px);
+}
+.gen-blur {
+  filter: blur(3px);
+  pointer-events: none;
+  user-select: none;
+}
+.gen-overlay {
+  position: fixed;
+  inset: 0;
+  top: 56px;
+  background: var(--overlay-backdrop);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-13);
+  z-index: 1000;
+}
+.gen-spinner {
+  width: 48px;
+  height: 48px;
+  border: var(--border-width-loader) solid var(--color-white);
+  border-top-color: var(--color-accent);
+  border-radius: var(--radius-full);
+  animation: rotate var(--duration-loader) linear infinite;
+  margin-bottom: var(--space-11);
+}
+.gen-title {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-white);
+}
+.gen-sub { font-size: var(--font-size-lg); color: rgba(255, 255, 255, 0.55); }
+.gen-steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  width: 100%;
+  max-width: 340px;
+  padding: 0 var(--space-11);
+}
+.gen-step {
+  display: flex;
+  align-items: center;
+  gap: var(--space-9);
+  padding: 0.7rem var(--space-11);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-lg);
+}
+.gen-step .material-symbols-rounded { font-size: 18px; flex-shrink: 0; }
+.gs-done  { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); }
+.gs-done  .material-symbols-rounded { color: #4ade80; }
+.gs-active { background: rgba(255,255,255,0.15); color: var(--color-white); font-weight: var(--font-weight-semibold); }
+.gs-active .material-symbols-rounded { color: #fbbf24; animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.gs-pending { opacity: 0.4; color: rgba(255,255,255,0.6); }
+.gs-pending .material-symbols-rounded { color: rgba(255,255,255,0.3); }
+
+/* ══════════════════════════════════════════════════════════
+   SCREEN 4: REPORT
+   ══════════════════════════════════════════════════════════ */
+.report-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-11);
+  margin-bottom: 1.75rem;
+}
+.report-topbar-left { display: flex; flex-direction: column; gap: var(--space-3); }
+.report-topbar-left h1 {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-semibold);
+}
+.report-meta { font-size: var(--font-size-md); color: var(--color-slate); }
+.report-actions { display: flex; gap: var(--space-9); flex-wrap: wrap; }
+.btn-export {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-8) var(--space-13);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xl);
+  background: transparent;
+  color: var(--color-primary);
+  border: var(--border-width-thick) solid var(--color-primary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--duration-fast) ease;
+}
+.btn-export .material-symbols-rounded { font-size: 20px; }
+.btn-export:hover { background: var(--color-primary); color: var(--color-white); }
+
+/* Report KPI cards */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-11);
+  margin-bottom: var(--space-12);
+}
+
+.kpi-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-13);
+  box-shadow: var(--shadow-sm);
+  border-left: 4px solid var(--color-primary);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.kpi-card.kpi-accent  { border-left-color: var(--color-accent); }
+.kpi-card.kpi-error   { border-left-color: var(--color-error); }
+.kpi-card.kpi-success { border-left-color: var(--color-success); }
+.kpi-card.kpi-warn    { border-left-color: #f59e0b; }
+
+.kpi-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-slate);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.kpi-value {
+  font-family: var(--font-mono);
+  font-size: 1.55rem;
+  color: var(--color-primary);
+  line-height: 1.1;
+}
+.kpi-card.kpi-error .kpi-value   { color: var(--color-error); }
+.kpi-card.kpi-success .kpi-value { color: var(--color-success); }
+.kpi-card.kpi-warn .kpi-value    { color: #b45309; }
+.kpi-sub { font-size: var(--font-size-xs); color: var(--color-slate); }
+
+/* Chart containers */
+.chart-wrap { position: relative; height: 260px; }
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+  .g6       { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .g4           { grid-template-columns: 1fr 1fr; }
+  .g3, .g2      { grid-template-columns: 1fr; }
+  .g6           { grid-template-columns: repeat(2, 1fr); }
+  .kpi-grid     { grid-template-columns: 1fr 1fr; }
+  .page         { padding: var(--space-11); }
+  .page-hd h1   { font-size: var(--font-size-3xl); }
+  .nav-user-txt { display: none; }
+  .navbar       { padding: var(--space-11); }
+  .login-wrap   { padding: var(--space-11); }
+  .login-box    { padding: var(--space-13); }
+  .login-logo span:last-child { font-size: var(--font-size-5xl); }
+  .sc           { padding: var(--space-11); }
+  .sc-hd        { flex-wrap: wrap; }
+  .ftbl         { min-width: 540px; }
+  .report-topbar { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 480px) {
+  .g4, .g6      { grid-template-columns: 1fr; }
+  .kpi-grid     { grid-template-columns: 1fr; }
+  .gen-steps    { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- Mockup Navigator -->
+<nav class="mockup-nav">
+  <span class="mockup-nav-title">Design Mockup</span>
+  <button class="active" onclick="showScreen('login',this)">1. Login</button>
+  <button onclick="showScreen('dashboard',this)">2. Dashboard</button>
+  <button onclick="showScreen('generating',this)">3. Generating</button>
+  <button onclick="showScreen('report',this)">4. Report</button>
+  <span class="nav-divider">|</span>
+  <span class="nav-section-label">Notifications:</span>
+  <button class="nb-success" onclick="demoNotif('login-ok')">Login ✓</button>
+  <button class="nb-error"   onclick="demoNotif('login-fail')">Login ✗</button>
+  <button class="nb-success" onclick="demoNotif('report-ok')">Report ✓</button>
+  <button class="nb-error"   onclick="demoNotif('report-fail')">Report ✗</button>
+  <button class="nb-success" onclick="demoNotif('export-ok')">Export ✓</button>
+  <button class="nb-error"   onclick="demoNotif('export-fail')">Export ✗</button>
+  <button class="nb-info"    onclick="demoNotif('logout')">Logout</button>
+  <span class="viewport-info" id="viewport-info">Desktop</span>
+</nav>
+
+<div class="screen-container">
+
+<!-- ════════════════════════════════════════════════════════
+     SCREEN 1: LOGIN
+     ════════════════════════════════════════════════════════ -->
+<div id="screen-login" class="screen active">
+<div class="login-wrap">
+  <div class="login-box">
+    <div class="login-logo">
+      <span class="material-symbols-rounded">speed</span>
+      <span>Idling ROI</span>
+    </div>
+    <p class="login-sub">Fleet Analytics &mdash; Powered by MyGeotab API</p>
+
+    <div class="ig">
+      <label for="inp-user">Username</label>
+      <div class="if">
+        <span class="material-symbols-rounded">person</span>
+        <input id="inp-user" type="text" placeholder="user@company.com">
+      </div>
+    </div>
+    <div class="ig">
+      <label for="inp-db">Database</label>
+      <div class="if">
+        <span class="material-symbols-rounded">storage</span>
+        <input id="inp-db" type="text" placeholder="mydatabase">
+      </div>
+    </div>
+    <div class="ig">
+      <label for="inp-pw">Password</label>
+      <div class="if">
+        <span class="material-symbols-rounded">lock</span>
+        <input id="inp-pw" type="password" placeholder="••••••••">
+      </div>
+    </div>
+
+    <div style="margin-top:1.75rem">
+      <button class="btn-primary" onclick="showLoginModal()">
+        <span class="material-symbols-rounded">login</span>
+        Sign In
+      </button>
+    </div>
+    <p class="login-note">Requires an active MyGeotab account and internet connection</p>
+  </div>
+</div>
+
+<!-- Login Loading Modal -->
+<div class="login-modal-overlay" id="login-modal">
+  <div class="login-modal">
+    <div class="login-spinner"></div>
+    <div class="login-modal-title">Signing In</div>
+    <div class="login-modal-sub">Authenticating with MyGeotab…</div>
+  </div>
+</div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     SCREEN 2: DASHBOARD (Summary + Config + Generate)
+     ════════════════════════════════════════════════════════ -->
+<div id="screen-dashboard" class="screen">
+
+  <nav class="navbar">
+    <div class="nav-brand">
+      <div class="nav-icon-wrap"><span class="material-symbols-rounded">speed</span></div>
+      <div>
+        <div class="nav-title">Idling ROI</div>
+        <div class="nav-subtitle">Fleet Analytics</div>
+      </div>
+    </div>
+    <div class="nav-user" id="nav-user" onclick="toggleLogout()">
+      <div class="nav-user-txt">
+        <div class="nav-email">user@acme.com</div>
+        <div class="nav-dbid">acme_corp</div>
+      </div>
+      <div class="nav-avatar">
+        <span class="material-symbols-rounded">account_circle</span>
+      </div>
+      <div class="logout-dropdown" id="logout-dropdown">
+        <button class="logout-btn" onclick="doLogout(event)">
+          <span class="material-symbols-rounded">logout</span>
+          Sign Out
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page">
+    <div class="page-hd">
+      <h1>Idling ROI Analysis</h1>
+      <p>Review your fleet composition, configure pricing parameters, and generate an idling cost report.</p>
+    </div>
+
+    <!-- ── SECTION: Fleet Summary ── -->
+    <div class="sc">
+      <div class="sc-hd">
+        <div class="sc-ico"><span class="material-symbols-rounded">directions_car</span></div>
+        <div>
+          <div class="sc-ttl">Fleet Summary</div>
+          <div class="sc-sub">Device count and powertrain breakdown, auto-resolved from vehicle group hierarchy</div>
+        </div>
+      </div>
+
+      <!-- Total devices + powertrain breakdown -->
+      <div class="g6" style="margin-bottom: var(--space-13);">
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon">directions_car</span>
+          <div class="stat-card-label">Total Devices</div>
+          <div class="stat-card-value">247</div>
+          <div class="stat-card-sub">Across all groups</div>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon" style="color:#2E7D32">bolt</span>
+          <div class="stat-card-label">BEV</div>
+          <div class="stat-card-value">42</div>
+          <div class="stat-card-sub">Battery Electric</div>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon" style="color:#b45309">local_gas_station</span>
+          <div class="stat-card-label">ICE — Petrol</div>
+          <div class="stat-card-value">89</div>
+          <div class="stat-card-sub">Gasoline</div>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon" style="color:#E65100">opacity</span>
+          <div class="stat-card-label">ICE — Diesel</div>
+          <div class="stat-card-value">76</div>
+          <div class="stat-card-sub">Diesel</div>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon" style="color:#15803d">eco</span>
+          <div class="stat-card-label">HEV</div>
+          <div class="stat-card-value">28</div>
+          <div class="stat-card-sub">Hybrid</div>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon" style="color:#6d28d9">electric_car</span>
+          <div class="stat-card-label">PHEV</div>
+          <div class="stat-card-value">8</div>
+          <div class="stat-card-sub">Plug-in Hybrid</div>
+        </div>
+      </div>
+
+      <!-- Unknown vehicles banner + table -->
+      <div class="banner banner-warn">
+        <span class="material-symbols-rounded">warning</span>
+        <span><strong>4 vehicles</strong> have no valid powertrain or fuel type assigned. They are excluded from cost calculations until corrected in MyGeotab.</span>
+      </div>
+
+      <div class="tbl-wrap">
+        <table class="rtbl">
+          <thead>
+            <tr>
+              <th>Vehicle Name</th>
+              <th>Serial Number</th>
+              <th>Device ID</th>
+              <th>Last Communication</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Truck 04-B</td>
+              <td style="font-family:var(--font-mono);font-size:var(--font-size-sm)">GT9-A1B2C3</td>
+              <td style="font-family:var(--font-mono);font-size:var(--font-size-sm)">b1234567890abcde</td>
+              <td style="color:var(--color-slate);font-size:var(--font-size-sm)">28 Apr 2025, 14:32</td>
+              <td>
+                <button class="btn-action">
+                  <span class="material-symbols-rounded">open_in_new</span>Edit in MyGeotab
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td>Van 11</td>
+              <td style="font-family:var(--font-mono);font-size:var(--font-size-sm)">GT9-D4E5F6</td>
+              <td style="font-family:var(--font-mono);font-size:var(--font-size-sm)">c9876543210fedcb</td>
+              <td style="color:var(--color-slate);font-size:var(--font-size-sm)">29 Apr 2025, 09:15</td>
+              <td>
+                <button class="btn-action">
+                  <span class="material-symbols-rounded">open_in_new</span>Edit in MyGeotab
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td>Sedan 22-X</td>
+              <td style="font-family:var(--font-mono);font-size:var(--font-size-sm)">GT9-G7H8I9</td>
+              <td style="font-family:var(--font-mono);font-size:var(--font-size-sm)">a1c2e3g4i5k6m7n8</td>
+              <td style="color:var(--color-slate);font-size:var(--font-size-sm)">27 Apr 2025, 18:00</td>
+              <td>
+                <button class="btn-action">
+                  <span class="material-symbols-rounded">open_in_new</span>Edit in MyGeotab
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td>SUV Fleet 03</td>
+              <td style="font-family:var(--font-mono);font-size:var(--font-size-sm)">GT9-J0K1L2</td>
+              <td style="font-family:var(--font-mono);font-size:var(--font-size-sm)">z9y8x7w6v5u4t3s2</td>
+              <td style="color:var(--color-slate);font-size:var(--font-size-sm)">26 Apr 2025, 11:45</td>
+              <td>
+                <button class="btn-action">
+                  <span class="material-symbols-rounded">open_in_new</span>Edit in MyGeotab
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── SECTION: Analysis Period ── -->
+    <div class="sc">
+      <div class="sc-hd">
+        <div class="sc-ico"><span class="material-symbols-rounded">calendar_month</span></div>
+        <div>
+          <div class="sc-ttl">Analysis Period</div>
+          <div class="sc-sub">Define the start and end of the reporting window (month granularity)</div>
+        </div>
+      </div>
+      <div class="g4">
+        <div class="ig">
+          <label>Start Month</label>
+          <div class="if">
+            <span class="material-symbols-rounded">event</span>
+            <select><option>April</option></select>
+          </div>
+        </div>
+        <div class="ig">
+          <label>Start Year</label>
+          <div class="if">
+            <span class="material-symbols-rounded">calendar_today</span>
+            <select><option>2025</option></select>
+          </div>
+        </div>
+        <div class="ig">
+          <label>End Month</label>
+          <div class="if">
+            <span class="material-symbols-rounded">event</span>
+            <select><option>December</option></select>
+          </div>
+        </div>
+        <div class="ig">
+          <label>End Year</label>
+          <div class="if">
+            <span class="material-symbols-rounded">calendar_today</span>
+            <select><option>2025</option></select>
+          </div>
+        </div>
+      </div>
+      <div class="hint">
+        <span class="material-symbols-rounded">info</span>
+        <span>Analysis period: April 2025 – December 2025 (9 months)</span>
+      </div>
+    </div>
+
+    <!-- ── SECTION: Currency & Fuel/Idling Settings ── -->
+    <div class="sc">
+      <div class="sc-hd">
+        <div class="sc-ico"><span class="material-symbols-rounded">local_gas_station</span></div>
+        <div>
+          <div class="sc-ttl">Currency &amp; Fuel / Idling Settings</div>
+          <div class="sc-sub">Powertrain types are auto-detected from vehicle group assignments in MyGeotab. Override rates as needed.</div>
+        </div>
+      </div>
+
+      <!-- Currency row -->
+      <div class="g3" style="margin-bottom: var(--space-13);">
+        <div class="ig" style="margin-bottom:0">
+          <label>Currency</label>
+          <div class="if">
+            <span class="material-symbols-rounded">payments</span>
+            <select id="sel-currency">
+              <option value="USD">USD — US Dollar</option>
+              <option value="SGD">SGD — Singapore Dollar</option>
+              <option value="IDR">IDR — Indonesian Rupiah</option>
+              <option value="MYR">MYR — Malaysian Ringgit</option>
+              <option value="THB">THB — Thai Baht</option>
+              <option value="PHP">PHP — Philippine Peso</option>
+            </select>
+          </div>
+          <div class="hint">
+            <span class="material-symbols-rounded">info</span>
+            <span>Auto-detected from user profile, adjustable</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fuel & idle rate table -->
+      <div class="tbl-wrap">
+        <table class="ftbl">
+          <thead>
+            <tr>
+              <th>Powertrain</th>
+              <th>Fuel / Energy Type</th>
+              <th>Vehicles</th>
+              <th>Price / Unit</th>
+              <th>Idle Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="fbadge fb-ev">BEV</span></td>
+              <td>Electric</td>
+              <td style="font-family:var(--font-mono)">42</td>
+              <td>
+                <div class="if-sm">
+                  <input type="number" value="0.12">
+                  <span class="unit" id="unit-bev">USD/kWh</span>
+                </div>
+              </td>
+              <td>
+                <div class="if-sm">
+                  <input type="number" value="2.0">
+                  <span class="unit">kWh/hr</span>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="fbadge fb-petrol">ICE</span></td>
+              <td>Petrol (Gasoline)</td>
+              <td style="font-family:var(--font-mono)">89</td>
+              <td>
+                <div class="if-sm">
+                  <input type="number" value="1.45">
+                  <span class="unit" id="unit-petrol">USD/L</span>
+                </div>
+              </td>
+              <td>
+                <div class="if-sm">
+                  <input type="number" value="1.0">
+                  <span class="unit">L/hr</span>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="fbadge fb-diesel">ICE</span></td>
+              <td>Diesel</td>
+              <td style="font-family:var(--font-mono)">76</td>
+              <td>
+                <div class="if-sm">
+                  <input type="number" value="1.30">
+                  <span class="unit" id="unit-diesel">USD/L</span>
+                </div>
+              </td>
+              <td>
+                <div class="if-sm">
+                  <input type="number" value="1.2">
+                  <span class="unit">L/hr</span>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="fbadge fb-hev">HEV</span></td>
+              <td>Hybrid (Petrol)</td>
+              <td style="font-family:var(--font-mono)">28</td>
+              <td>
+                <div class="if-sm">
+                  <input type="number" value="1.45">
+                  <span class="unit" id="unit-hev">USD/L</span>
+                </div>
+              </td>
+              <td>
+                <div class="if-sm">
+                  <input type="number" value="0.7">
+                  <span class="unit">L/hr</span>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="fbadge fb-phev">PHEV</span></td>
+              <td>Plug-in Hybrid</td>
+              <td style="font-family:var(--font-mono)">8</td>
+              <td>
+                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+                  <div class="if-sm"><input type="number" value="0.12" style="width:50px"><span class="unit" id="unit-phev-e">USD/kWh</span></div>
+                  <div class="if-sm"><input type="number" value="1.45" style="width:50px"><span class="unit" id="unit-phev-l">USD/L</span></div>
+                </div>
+              </td>
+              <td>
+                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+                  <div class="if-sm"><input type="number" value="1.5" style="width:50px"><span class="unit">kWh/hr</span></div>
+                  <div class="if-sm"><input type="number" value="0.5" style="width:50px"><span class="unit">L/hr</span></div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="hint" style="margin-top:0.75rem">
+        <span class="material-symbols-rounded">info</span>
+        <span>Fuel type resolved from <code style="font-family:var(--font-mono);font-size:.8rem;background:var(--color-code-bg);padding:1px 4px;border-radius:4px">GroupPowertrainAndFuelTypeId</code> in each vehicle's group hierarchy. Idle rates are Geotab defaults — override per fleet as needed.</span>
+      </div>
+    </div>
+
+    <!-- Generate Button -->
+    <div style="margin-bottom: 0.5rem">
+      <button class="btn-primary" onclick="showScreen('generating', null)">
+        <span class="material-symbols-rounded">assessment</span>
+        Generate Idling ROI Report
+      </button>
+    </div>
+
+    <div class="pfooter">Idling ROI Tool &mdash; Powered by Geotab &nbsp;|&nbsp; Data from MyGeotab API</div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     SCREEN 3: GENERATING
+     ════════════════════════════════════════════════════════ -->
+<div id="screen-generating" class="screen">
+  <div class="gen-wrap">
+    <!-- Blurred background content -->
+    <div class="gen-blur">
+      <nav class="navbar">
+        <div class="nav-brand">
+          <div class="nav-icon-wrap"><span class="material-symbols-rounded">speed</span></div>
+          <div>
+            <div class="nav-title">Idling ROI</div>
+            <div class="nav-subtitle">Fleet Analytics</div>
+          </div>
+        </div>
+      </nav>
+      <div class="page" style="opacity:.35;pointer-events:none">
+        <div class="sc">
+          <div class="sc-hd">
+            <div class="sc-ico"><span class="material-symbols-rounded">directions_car</span></div>
+            <div><div class="sc-ttl">Fleet Summary</div></div>
+          </div>
+        </div>
+        <div class="sc">
+          <div class="sc-hd">
+            <div class="sc-ico"><span class="material-symbols-rounded">local_gas_station</span></div>
+            <div><div class="sc-ttl">Currency &amp; Fuel / Idling Settings</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Overlay -->
+    <div class="gen-overlay">
+      <div class="gen-spinner"></div>
+      <div class="gen-title">Generating Report…</div>
+      <div class="gen-sub">Fetching trip and fuel data&hellip;</div>
+      <div class="gen-steps">
+        <div class="gen-step gs-done">
+          <span class="material-symbols-rounded">check_circle</span>
+          <span>Authenticating</span>
+        </div>
+        <div class="gen-step gs-done">
+          <span class="material-symbols-rounded">check_circle</span>
+          <span>Fetching vehicles &amp; powertrain data</span>
+        </div>
+        <div class="gen-step gs-active">
+          <span class="material-symbols-rounded">pending</span>
+          <span>Fetching trip data</span>
+        </div>
+        <div class="gen-step gs-pending">
+          <span class="material-symbols-rounded">radio_button_unchecked</span>
+          <span>Calculating idle consumption</span>
+        </div>
+        <div class="gen-step gs-pending">
+          <span class="material-symbols-rounded">radio_button_unchecked</span>
+          <span>Computing cost &amp; savings</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     SCREEN 4: REPORT
+     ════════════════════════════════════════════════════════ -->
+<div id="screen-report" class="screen">
+  <nav class="navbar">
+    <div class="nav-brand">
+      <div class="nav-icon-wrap"><span class="material-symbols-rounded">speed</span></div>
+      <div>
+        <div class="nav-title">Idling ROI</div>
+        <div class="nav-subtitle">Fleet Analytics</div>
+      </div>
+    </div>
+    <div class="nav-user" onclick="toggleLogout()">
+      <div class="nav-user-txt">
+        <div class="nav-email">user@acme.com</div>
+        <div class="nav-dbid">acme_corp</div>
+      </div>
+      <div class="nav-avatar">
+        <span class="material-symbols-rounded">account_circle</span>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page">
+    <div class="report-topbar">
+      <div class="report-topbar-left">
+        <h1>Idling ROI Report</h1>
+        <div class="report-meta">
+          Apr 2025 – Dec 2025 &nbsp;&middot;&nbsp; 243 vehicles &nbsp;&middot;&nbsp; Generated 2 May 2026 &nbsp;&middot;&nbsp; acme_corp
+        </div>
+      </div>
+      <div class="report-actions">
+        <button class="btn-export" onclick="demoNotif('print-ok')">
+          <span class="material-symbols-rounded">print</span> Print as PDF
+        </button>
+        <button class="btn-export" onclick="demoNotif('export-ok')">
+          <span class="material-symbols-rounded">download</span> Download HTML
+        </button>
+      </div>
+    </div>
+
+    <!-- Idling Cost Overview -->
+    <div class="sc">
+      <div class="sc-hd">
+        <div class="sc-ico"><span class="material-symbols-rounded">analytics</span></div>
+        <div>
+          <div class="sc-ttl">Idling Cost Overview</div>
+          <div class="sc-sub">Apr 2025 – Dec 2025 &middot; 243 vehicles</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:var(--space-11);">
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon">timer</span>
+          <div class="stat-card-label">Total Idle Duration</div>
+          <div class="stat-card-value" style="font-size:1.4rem;">14,832 hr</div>
+          <div class="stat-card-sub">Across all powertrain types</div>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon">local_gas_station</span>
+          <div class="stat-card-label">Fuel &amp; Energy Consumed</div>
+          <div class="stat-card-value" style="font-size:1.25rem;">18,450 L</div>
+          <div class="stat-card-sub">+ <span style="font-family:var(--font-mono);color:var(--color-primary);">2,840 kWh</span> while idle</div>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon" style="color:var(--color-error)">payments</span>
+          <div class="stat-card-label">Total Idle Cost</div>
+          <div class="stat-card-value" style="font-size:1.25rem;color:var(--color-error);">USD 26,841</div>
+          <div class="stat-card-sub">At configured prices</div>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon" style="color:var(--color-success)">savings</span>
+          <div class="stat-card-label">Savings at 25% Reduction</div>
+          <div class="stat-card-value" style="font-size:1.25rem;color:var(--color-success);">USD 6,710</div>
+          <div class="stat-card-sub">Estimated annual impact</div>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon" style="color:#f59e0b">warning</span>
+          <div class="stat-card-label">Vehicles Missing Data</div>
+          <div class="stat-card-value">9</div>
+          <div class="stat-card-sub">Excluded from cost calc</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trip Activity & Fuel Efficiency -->
+    <div class="sc">
+      <div class="sc-hd">
+        <div class="sc-ico"><span class="material-symbols-rounded">route</span></div>
+        <div>
+          <div class="sc-ttl">Trip Activity &amp; Fuel Efficiency</div>
+          <div class="sc-sub">Idling share of total trip time, and average fuel/energy economy by powertrain</div>
+        </div>
+      </div>
+      <div class="g3" style="margin-bottom:var(--space-11);">
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon">schedule</span>
+          <div class="stat-card-label">Total Trip Duration</div>
+          <div class="stat-card-value" style="font-size:1.4rem;">48,920 hr</div>
+          <div class="stat-card-sub">All vehicle trips combined</div>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon">timer</span>
+          <div class="stat-card-label">Total Idle Duration</div>
+          <div class="stat-card-value" style="font-size:1.4rem;">14,832 hr</div>
+          <div class="stat-card-sub">While engine on, speed = 0</div>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon" style="color:var(--color-error)">percent</span>
+          <div class="stat-card-label">Idling % of Total Trip</div>
+          <div class="stat-card-value" style="color:var(--color-error);">30.3%</div>
+          <div class="stat-card-sub">14,832 &divide; 48,920 hrs</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:var(--space-11);">
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon" style="color:#b45309">local_gas_station</span>
+          <div class="stat-card-label">Avg Economy — ICE Petrol</div>
+          <div class="stat-card-value" style="font-size:1.4rem;">8.5 km/L</div>
+          <div class="stat-card-sub">89 vehicles</div>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon" style="color:#E65100">opacity</span>
+          <div class="stat-card-label">Avg Economy — ICE Diesel</div>
+          <div class="stat-card-value" style="font-size:1.4rem;">9.2 km/L</div>
+          <div class="stat-card-sub">76 vehicles</div>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon" style="color:#15803d">eco</span>
+          <div class="stat-card-label">Avg Economy — HEV</div>
+          <div class="stat-card-value" style="font-size:1.4rem;">13.8 km/L</div>
+          <div class="stat-card-sub">28 vehicles</div>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon" style="color:#2E7D32">bolt</span>
+          <div class="stat-card-label">Avg Economy — BEV</div>
+          <div class="stat-card-value" style="font-size:1.4rem;">6.8 km/kWh</div>
+          <div class="stat-card-sub">42 vehicles</div>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon" style="color:#6d28d9">electric_car</span>
+          <div class="stat-card-label">Avg Economy — PHEV</div>
+          <div class="stat-card-value" style="font-size:1.4rem;">5.2 km/kWh</div>
+          <div class="stat-card-sub">8 vehicles</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart 1: Idle Duration by Powertrain -->
+    <div class="sc">
+      <div class="sc-hd">
+        <div class="sc-ico"><span class="material-symbols-rounded">bar_chart</span></div>
+        <div>
+          <div class="sc-ttl">Idle Duration by Powertrain Type</div>
+          <div class="sc-sub">Total idle hours per powertrain — Apr 2025 to Dec 2025</div>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="chartIdleDuration"></canvas>
+      </div>
+    </div>
+
+    <!-- Charts 2 + 3 side by side -->
+    <div class="g2">
+      <div class="sc" style="margin-bottom: var(--space-12);">
+        <div class="sc-hd">
+          <div class="sc-ico"><span class="material-symbols-rounded">donut_large</span></div>
+          <div>
+            <div class="sc-ttl">Consumption Distribution</div>
+            <div class="sc-sub">Idle cost share by powertrain (USD)</div>
+          </div>
+        </div>
+        <div class="chart-wrap" style="height:220px;">
+          <canvas id="chartPie"></canvas>
+        </div>
+      </div>
+      <div class="sc" style="margin-bottom: var(--space-12);">
+        <div class="sc-hd">
+          <div class="sc-ico"><span class="material-symbols-rounded">show_chart</span></div>
+          <div>
+            <div class="sc-ttl">Monthly Idle Hours Trend</div>
+            <div class="sc-sub">Combined across all powertrain types</div>
+          </div>
+        </div>
+        <div class="chart-wrap" style="height:220px;">
+          <canvas id="chartTrend"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart 4: Cost vs Savings -->
+    <div class="sc">
+      <div class="sc-hd">
+        <div class="sc-ico"><span class="material-symbols-rounded">savings</span></div>
+        <div>
+          <div class="sc-ttl">Idle Cost vs Potential Savings</div>
+          <div class="sc-sub">Cost impact and savings at different reduction targets per powertrain type (USD)</div>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="chartCostSavings"></canvas>
+      </div>
+      <div style="display:flex;gap:var(--space-11);flex-wrap:wrap;margin-top:var(--space-13);">
+        <div class="stat-card" style="flex:1;min-width:140px;">
+          <div class="stat-card-label">10% reduction</div>
+          <div class="stat-card-value" style="font-size:1.4rem;">USD 2,684</div>
+          <div class="stat-card-sub">Annual savings</div>
+        </div>
+        <div class="stat-card" style="flex:1;min-width:140px;">
+          <div class="stat-card-label">25% reduction</div>
+          <div class="stat-card-value" style="font-size:1.4rem;">USD 6,710</div>
+          <div class="stat-card-sub">Annual savings</div>
+        </div>
+        <div class="stat-card" style="flex:1;min-width:140px;">
+          <div class="stat-card-label">50% reduction</div>
+          <div class="stat-card-value" style="font-size:1.4rem;">USD 13,421</div>
+          <div class="stat-card-sub">Annual savings</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vehicles Missing Data -->
+    <div class="sc">
+      <div class="sc-hd">
+        <div class="sc-ico"><span class="material-symbols-rounded">warning</span></div>
+        <div>
+          <div class="sc-ttl">Vehicles Missing Fuel / Energy Data</div>
+          <div class="sc-sub">These vehicles had no telemetry data for the selected period and are excluded from cost calculations</div>
+        </div>
+      </div>
+      <div class="banner banner-warn" style="margin-bottom: var(--space-11);">
+        <span class="material-symbols-rounded">info</span>
+        <span>9 vehicles are missing fuel or energy data. Ensure devices are actively communicating and that Geotab Engine Data is enabled on the relevant vehicles.</span>
+      </div>
+      <div class="tbl-wrap">
+        <table class="rtbl">
+          <thead>
+            <tr>
+              <th>Vehicle Name</th>
+              <th>Serial Number</th>
+              <th>Powertrain</th>
+              <th>Idle Duration</th>
+              <th>Issue</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Bus 07-Alpha</td>
+              <td style="font-family:var(--font-mono);font-size:var(--font-size-sm)">GT9-Z1Z2Z3</td>
+              <td><span class="fbadge fb-diesel">ICE Diesel</span></td>
+              <td style="font-family:var(--font-mono)">128 hr</td>
+              <td style="color:var(--color-error);font-size:var(--font-size-sm)">No fuel data</td>
+            </tr>
+            <tr>
+              <td>Pickup 15</td>
+              <td style="font-family:var(--font-mono);font-size:var(--font-size-sm)">GT9-X4X5X6</td>
+              <td><span class="fbadge fb-petrol">ICE Petrol</span></td>
+              <td style="font-family:var(--font-mono)">74 hr</td>
+              <td style="color:var(--color-error);font-size:var(--font-size-sm)">No fuel data</td>
+            </tr>
+            <tr>
+              <td>EV Van 02</td>
+              <td style="font-family:var(--font-mono);font-size:var(--font-size-sm)">GT9-Y7Y8Y9</td>
+              <td><span class="fbadge fb-ev">BEV</span></td>
+              <td style="font-family:var(--font-mono)">31 hr</td>
+              <td style="color:var(--color-error);font-size:var(--font-size-sm)">No energy data</td>
+            </tr>
+            <tr>
+              <td colspan="5" style="text-align:center;color:var(--color-slate);font-size:var(--font-size-sm)">
+                + 6 more vehicles
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /page -->
+  <div class="pfooter">Idling ROI Tool &mdash; Powered by Geotab &nbsp;|&nbsp; Data from MyGeotab API</div>
+</div>
+
+</div><!-- /screen-container -->
+
+<!-- Notification Modal -->
+<div class="notif-overlay" id="notif-overlay">
+  <div class="notif-modal-card">
+    <div class="notif-icon-wrap ni-success" id="notif-icon-wrap">
+      <span class="material-symbols-rounded" id="notif-icon">check_circle</span>
+    </div>
+    <div class="notif-title" id="notif-title">Success</div>
+    <div class="notif-msg" id="notif-msg">Operation completed successfully.</div>
+    <div class="notif-btns">
+      <button class="btn-primary" id="notif-action-btn" onclick="notifAction()">Continue</button>
+      <button class="btn-tertiary" id="notif-dismiss-btn" onclick="closeNotif()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─── Screen switcher ─── */
+let generatingTimer = null;
+function showScreen(name, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.mockup-nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (name === 'report') renderCharts();
+  if (name === 'generating') {
+    clearTimeout(generatingTimer);
+    generatingTimer = setTimeout(() => {
+      if (document.getElementById('screen-generating').classList.contains('active'))
+        demoNotif('report-ok');
+    }, 3200);
+  }
+  const dd = document.getElementById('logout-dropdown');
+  if (dd) dd.classList.remove('active');
+}
+
+/* ─── Viewport info ─── */
+function updateViewport() {
+  const w = window.innerWidth;
+  let label = 'Desktop';
+  if (w <= 480) label = 'Mobile (≤480px)';
+  else if (w <= 768) label = 'Tablet (≤768px)';
+  else if (w <= 1024) label = 'Laptop (≤1024px)';
+  document.getElementById('viewport-info').textContent = label + ' – ' + w + 'px';
+}
+window.addEventListener('resize', updateViewport);
+updateViewport();
+
+/* ─── Login modal ─── */
+function showLoginModal() {
+  document.getElementById('login-modal').classList.add('active');
+  setTimeout(() => {
+    document.getElementById('login-modal').classList.remove('active');
+    demoNotif('login-ok');
+  }, 1800);
+}
+
+/* ─── Logout dropdown ─── */
+function toggleLogout() {
+  const dd = document.getElementById('logout-dropdown');
+  if (dd) dd.classList.toggle('active');
+}
+function doLogout(e) {
+  e.stopPropagation();
+  const dd = document.getElementById('logout-dropdown');
+  if (dd) dd.classList.remove('active');
+  demoNotif('logout');
+}
+document.addEventListener('click', e => {
+  const nu = document.getElementById('nav-user');
+  const dd = document.getElementById('logout-dropdown');
+  if (nu && dd && !nu.contains(e.target)) dd.classList.remove('active');
+});
+
+/* ─── Notification modal ─── */
+let notifActionCallback = null;
+
+function showNotif(cfg) {
+  document.getElementById('notif-icon-wrap').className = 'notif-icon-wrap ni-' + cfg.type;
+  document.getElementById('notif-icon').textContent    = cfg.icon;
+  document.getElementById('notif-title').textContent   = cfg.title;
+  document.getElementById('notif-msg').innerHTML       = cfg.msg;
+
+  const ab = document.getElementById('notif-action-btn');
+  const db = document.getElementById('notif-dismiss-btn');
+  if (cfg.actionLabel) {
+    ab.textContent   = cfg.actionLabel;
+    ab.style.display = '';
+  } else {
+    ab.style.display = 'none';
+  }
+  db.textContent = cfg.dismissLabel || 'Close';
+
+  notifActionCallback = cfg.action || null;
+  document.getElementById('notif-overlay').classList.add('active');
+}
+
+function closeNotif() {
+  document.getElementById('notif-overlay').classList.remove('active');
+  notifActionCallback = null;
+}
+
+function notifAction() {
+  const cb = notifActionCallback;
+  closeNotif();
+  if (cb) cb();
+}
+
+function demoNotif(key) {
+  const navBtns = document.querySelectorAll('.mockup-nav button');
+  const configs = {
+    'login-ok': {
+      type: 'success', icon: 'check_circle',
+      title: 'Signed In Successfully',
+      msg: 'Welcome back, <strong>user@acme.com</strong>. Your fleet data is ready.',
+      actionLabel: 'Go to Dashboard',
+      action: () => showScreen('dashboard', navBtns[1])
+    },
+    'login-fail': {
+      type: 'error', icon: 'error',
+      title: 'Authentication Failed',
+      msg: 'Incorrect username, database, or password. Please check your credentials and try again.',
+      dismissLabel: 'Try Again'
+    },
+    'report-ok': {
+      type: 'success', icon: 'check_circle',
+      title: 'Report Generated',
+      msg: 'Your Idling ROI Report is ready for <strong>243 vehicles</strong> across Apr &ndash; Dec 2025.',
+      actionLabel: 'View Report',
+      action: () => showScreen('report', navBtns[3])
+    },
+    'report-fail': {
+      type: 'error', icon: 'error',
+      title: 'Report Generation Failed',
+      msg: 'Unable to fetch trip data from MyGeotab. Check your internet connection and try again.',
+      actionLabel: 'Retry',
+      action: () => showScreen('generating', navBtns[2]),
+      dismissLabel: 'Cancel'
+    },
+    'export-ok': {
+      type: 'success', icon: 'download',
+      title: 'Download Ready',
+      msg: 'Your Idling ROI Report HTML file has been downloaded successfully.',
+      dismissLabel: 'Close'
+    },
+    'export-fail': {
+      type: 'error', icon: 'error',
+      title: 'Export Failed',
+      msg: 'Could not generate the export file. Please try again or use a different browser.',
+      actionLabel: 'Retry',
+      dismissLabel: 'Cancel'
+    },
+    'print-ok': {
+      type: 'success', icon: 'print',
+      title: 'Sent to Printer',
+      msg: 'Your report has been sent to the browser print dialog.',
+      dismissLabel: 'Close'
+    },
+    'logout': {
+      type: 'info', icon: 'logout',
+      title: 'Signed Out',
+      msg: 'You have been signed out successfully. See you next time.',
+      actionLabel: 'Back to Login',
+      action: () => showScreen('login', navBtns[0])
+    }
+  };
+  const c = configs[key];
+  if (c) showNotif(c);
+}
+
+/* ─── Currency live-update ─── */
+const currencyUnits = {
+  USD: { L: 'USD/L', kWh: 'USD/kWh' },
+  SGD: { L: 'SGD/L', kWh: 'SGD/kWh' },
+  IDR: { L: 'IDR/L', kWh: 'IDR/kWh' },
+  MYR: { L: 'MYR/L', kWh: 'MYR/kWh' },
+  THB: { L: 'THB/L', kWh: 'THB/kWh' },
+  PHP: { L: 'PHP/L', kWh: 'PHP/kWh' },
+};
+document.getElementById('sel-currency').addEventListener('change', function() {
+  const u = currencyUnits[this.value] || currencyUnits['USD'];
+  document.getElementById('unit-bev').textContent     = u.kWh;
+  document.getElementById('unit-petrol').textContent  = u.L;
+  document.getElementById('unit-diesel').textContent  = u.L;
+  document.getElementById('unit-hev').textContent     = u.L;
+  document.getElementById('unit-phev-e').textContent  = u.kWh;
+  document.getElementById('unit-phev-l').textContent  = u.L;
+});
+
+/* ─── Charts ─── */
+const C = {
+  primary: '#25457B',
+  accent:  '#00B8FF',
+  slate:   '#607690',
+  success: '#13AA09',
+  error:   '#FE4A3F',
+  bev:     '#2E7D32',
+  petrol:  '#b45309',
+  diesel:  '#E65100',
+  hev:     '#15803d',
+  phev:    '#6d28d9',
+};
+
+const POWERTRAIN   = ['BEV', 'ICE — Petrol', 'ICE — Diesel', 'HEV', 'PHEV'];
+const PT_COLORS    = [C.bev, C.petrol, C.diesel, C.hev, C.phev];
+
+let chartsBuilt = false;
+function renderCharts() {
+  if (chartsBuilt) return;
+  chartsBuilt = true;
+  Chart.defaults.font.family = "'IBM Plex Sans', sans-serif";
+  Chart.defaults.font.size   = 13;
+  Chart.defaults.color       = C.slate;
+
+  /* 1. Bar — Idle Duration */
+  new Chart(document.getElementById('chartIdleDuration'), {
+    type: 'bar',
+    data: {
+      labels: POWERTRAIN,
+      datasets: [{
+        label: 'Idle Hours',
+        data: [1240, 5830, 4920, 1960, 882],
+        backgroundColor: PT_COLORS,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false } },
+        y: {
+          beginAtZero: true,
+          title: { display: true, text: 'Hours', color: C.slate },
+          grid: { color: 'rgba(0,0,0,0.05)' },
+        }
+      }
+    }
+  });
+
+  /* 2. Doughnut — Cost share */
+  new Chart(document.getElementById('chartPie'), {
+    type: 'doughnut',
+    data: {
+      labels: POWERTRAIN,
+      datasets: [{
+        data: [3200, 8466, 8060, 4200, 2640],
+        backgroundColor: PT_COLORS,
+        borderWidth: 2,
+        borderColor: '#fff',
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'right', labels: { boxWidth: 12, padding: 12 } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: USD ${ctx.raw.toLocaleString()}` } }
+      }
+    }
+  });
+
+  /* 3. Line — Monthly Trend */
+  new Chart(document.getElementById('chartTrend'), {
+    type: 'line',
+    data: {
+      labels: ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      datasets: [{
+        label: 'Idle Hours',
+        data: [1650, 1820, 1740, 1510, 1380, 1620, 1730, 1800, 1582],
+        borderColor: C.primary,
+        backgroundColor: 'rgba(37,69,123,0.07)',
+        borderWidth: 2.5,
+        pointRadius: 4,
+        pointBackgroundColor: C.primary,
+        fill: true,
+        tension: 0.35,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false } },
+        y: {
+          beginAtZero: false,
+          title: { display: true, text: 'Hours', color: C.slate },
+          grid: { color: 'rgba(0,0,0,0.05)' },
+        }
+      }
+    }
+  });
+
+  /* 4. Grouped Bar — Cost vs Savings */
+  new Chart(document.getElementById('chartCostSavings'), {
+    type: 'bar',
+    data: {
+      labels: POWERTRAIN,
+      datasets: [
+        {
+          label: 'Total Idle Cost (USD)',
+          data: [3200, 8466, 8060, 4200, 2640],
+          backgroundColor: C.error + 'bb',
+          borderRadius: 4,
+        },
+        {
+          label: 'Savings at 25% Reduction (USD)',
+          data: [800, 2117, 2015, 1050, 660],
+          backgroundColor: C.success + 'bb',
+          borderRadius: 4,
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top', labels: { boxWidth: 12, padding: 14 } } },
+      scales: {
+        x: { grid: { display: false } },
+        y: {
+          beginAtZero: true,
+          title: { display: true, text: 'USD', color: C.slate },
+          grid: { color: 'rgba(0,0,0,0.05)' },
+        }
+      }
+    }
+  });
+}
+</script>
+</body>
+</html>
