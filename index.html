@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Idling ROI Tool — Design Mockup</title>
+<title>Idling ROI Tool</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -12,7 +12,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 /* ══════════════════════════════════════════════════════════
-   Arkivleet Design System — Idling ROI Tool Mockup
+   Arkivleet Design System — Idling ROI Tool
    ══════════════════════════════════════════════════════════ */
 
 :root {
@@ -102,6 +102,29 @@
 /* Utility */
 .hidden { display: none !important; }
 
+/* ══════════════════════════════════════════════════════════
+   SKELETON LOADERS (used while data is being fetched)
+   ══════════════════════════════════════════════════════════ */
+.skeleton {
+  display: inline-block;
+  background: linear-gradient(90deg,
+    var(--color-background) 25%,
+    var(--color-surface-alt) 50%,
+    var(--color-background) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+  color: transparent;
+  user-select: none;
+  pointer-events: none;
+  min-width: 40px;
+}
+.skeleton-block { display: block; height: 1em; }
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 body {
   font-family: var(--font-sans);
   font-size: var(--font-size-xl);
@@ -112,58 +135,6 @@ body {
 
 input, button, textarea, select { font-family: inherit; }
 
-/* ══════════════════════════════════════════════════════════
-   MOCKUP NAVIGATOR
-   ══════════════════════════════════════════════════════════ */
-.mockup-nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  background: #1a1a2e;
-  padding: 0.75rem 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  z-index: 9999;
-  flex-wrap: wrap;
-}
-
-.mockup-nav-title {
-  color: #fff;
-  font-weight: 600;
-  font-size: 0.9rem;
-  margin-right: 0.5rem;
-}
-
-.mockup-nav button {
-  background: #2d2d44;
-  color: #fff;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.mockup-nav button:hover { background: #3d3d5c; }
-.mockup-nav button.active { background: var(--color-primary); }
-.mockup-nav button.nb-success { background: rgba(19,170,9,0.22); }
-.mockup-nav button.nb-success:hover { background: rgba(19,170,9,0.38); }
-.mockup-nav button.nb-error   { background: rgba(254,74,63,0.22); }
-.mockup-nav button.nb-error:hover   { background: rgba(254,74,63,0.38); }
-.mockup-nav button.nb-info    { background: rgba(0,184,255,0.18); }
-.mockup-nav button.nb-info:hover    { background: rgba(0,184,255,0.3); }
-
-.mockup-nav .viewport-info {
-  margin-left: auto;
-  color: rgba(255,255,255,0.55);
-  font-size: 0.8rem;
-  font-family: var(--font-mono);
-}
-.nav-divider      { color: rgba(255,255,255,0.2); font-size: 1.1rem; line-height: 1; }
-.nav-section-label { color: rgba(255,255,255,0.42); font-size: 0.78rem; white-space: nowrap; }
-
-.screen-container { margin-top: 56px; }
 .screen { display: none; }
 .screen.active { display: block; }
 
@@ -241,8 +212,9 @@ input, button, textarea, select { font-family: inherit; }
   transition: background-color var(--duration-fast) ease;
 }
 .btn-primary .material-symbols-rounded { font-size: 20px; }
-.btn-primary:hover { background-color: var(--color-primary-hover); }
-.btn-primary:disabled { background-color: #aabbd5; cursor: not-allowed; }
+.btn-primary:hover:not(:disabled) { background-color: var(--color-primary-hover); }
+.btn-primary:disabled,
+.btn-primary.btn-disabled { background-color: #aabbd5; cursor: not-allowed; opacity: 0.7; }
 
 .btn-secondary {
   display: flex;
@@ -623,11 +595,13 @@ input, button, textarea, select { font-family: inherit; }
 .stat-card.primary .stat-card-label { color: rgba(255,255,255,0.6); }
 .stat-card-value {
   font-family: var(--font-mono);
-  font-size: var(--font-size-5xl);
+  font-size: 1.8rem;
   color: var(--color-primary);
   line-height: 1;
 }
 .stat-card.primary .stat-card-value { color: var(--color-white); }
+/* Idling Cost Overview cards — slightly smaller to fit currency strings */
+.cost-overview .stat-card-value { font-size: 1.4rem; }
 .stat-card-sub { font-size: var(--font-size-xs); color: var(--color-slate); }
 .stat-card.primary .stat-card-sub { color: rgba(255,255,255,0.55); }
 .stat-card-icon {
@@ -706,6 +680,52 @@ input, button, textarea, select { font-family: inherit; }
 .rtbl tbody tr:last-child td:last-child  { border-bottom-right-radius: var(--radius-sm); }
 .rtbl tbody tr:nth-child(even) td { background-color: var(--color-surface-alt); }
 
+/* Table info row above table (e.g. "Showing 1 - 5 of 12") */
+.rtbl-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: var(--space-9);
+  font-size: var(--font-size-sm);
+  color: var(--color-slate);
+}
+/* Pagination controls below table — compact tertiary buttons across all viewports */
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-6);
+  padding-top: var(--space-11);
+}
+.pagination .btn-page {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-9);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  background: transparent;
+  color: var(--color-primary);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--duration-fast) ease;
+}
+.pagination .btn-page:hover:not(:disabled) {
+  background: var(--color-surface-alt);
+}
+.pagination .btn-page:disabled {
+  background: transparent;
+  color: var(--color-slate);
+  border-color: var(--color-border-subtle);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+@media (max-width: 768px) {
+  .pagination { justify-content: center; }
+}
+
 /* Fuel/settings table (compact inputs) */
 .ftbl { width: 100%; border-collapse: collapse; }
 .ftbl thead th {
@@ -771,6 +791,8 @@ input, button, textarea, select { font-family: inherit; }
   border-radius: var(--radius-sm);
   padding: var(--space-5) var(--space-8);
   background: var(--color-surface);
+  min-height: 32px;
+  box-sizing: border-box;
 }
 .if-sm input {
   border: none;
@@ -780,6 +802,8 @@ input, button, textarea, select { font-family: inherit; }
   color: var(--color-primary);
   outline: none;
   width: 64px;
+  padding: 0;
+  min-width: 0;
 }
 .if-sm input:focus { border-color: var(--color-primary); }
 .if-sm .unit {
@@ -813,10 +837,30 @@ input, button, textarea, select { font-family: inherit; }
    FOOTER
    ══════════════════════════════════════════════════════════ */
 .pfooter {
-  text-align: center;
-  padding: var(--space-14);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+  padding: var(--space-14) 0;
   font-size: var(--font-size-md);
   color: var(--color-slate);
+}
+.pfooter-left { text-align: left; }
+.pfooter-right { display: flex; align-items: center; }
+.pfooter-logo {
+  height: 22px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+@media (max-width: 480px) {
+  .pfooter {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-9);
+    text-align: center;
+  }
+  .pfooter-left { text-align: center; }
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -901,6 +945,16 @@ input, button, textarea, select { font-family: inherit; }
   font-weight: var(--font-weight-semibold);
 }
 .report-meta { font-size: var(--font-size-md); color: var(--color-slate); }
+.report-meta-list {
+  list-style: disc;
+  padding-left: var(--space-13);
+  margin: 0;
+  color: var(--color-slate);
+  font-size: var(--font-size-md);
+}
+.report-meta-list li { margin-bottom: var(--space-3); }
+.report-meta-list li:last-child { margin-bottom: 0; }
+.report-meta-list strong { color: var(--color-primary); font-weight: inherit; }
 .report-actions { display: flex; gap: var(--space-9); flex-wrap: wrap; }
 .btn-export {
   display: inline-flex;
@@ -911,13 +965,30 @@ input, button, textarea, select { font-family: inherit; }
   font-size: var(--font-size-xl);
   background: transparent;
   color: var(--color-primary);
-  border: var(--border-width-thick) solid var(--color-primary);
+  border: var(--border-width) solid var(--color-primary);
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--duration-fast) ease;
 }
 .btn-export .material-symbols-rounded { font-size: 20px; }
 .btn-export:hover { background: var(--color-primary); color: var(--color-white); }
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-5);
+  padding: 0;
+  margin-bottom: var(--space-9);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-sm);
+  background: transparent;
+  color: var(--color-slate);
+  border: none;
+  cursor: pointer;
+  transition: color var(--duration-fast) ease;
+}
+.btn-back .material-symbols-rounded { font-size: 18px; }
+.btn-back:hover { color: var(--color-primary); }
 
 /* Report KPI cards */
 .kpi-grid {
@@ -999,28 +1070,38 @@ input, button, textarea, select { font-family: inherit; }
     border: 1px solid var(--color-border-light);
     border-radius: var(--radius-sm);
     padding: var(--space-11);
-    gap: var(--space-8);
   }
   .rtbl td, .ftbl td {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--space-5) 0;
+    padding: var(--space-8) 0;
     border-bottom: 1px solid var(--color-border-subtle);
     font-size: var(--font-size-md);
   }
-  .rtbl td:last-child, .ftbl td:last-child { border-bottom: none; }
+  .rtbl td:first-child, .ftbl td:first-child { padding-top: 0; }
+  .rtbl tr td:last-child,
+  .ftbl tr td:last-child { border-bottom: none; padding-bottom: 0; }
+  /* Override desktop rules that don't apply to stacked layout */
+  .rtbl tbody tr:last-child td,
+  .ftbl tbody tr:last-child td { border-bottom: 1px solid var(--color-border-subtle); }
+  .rtbl tbody tr:last-child td:last-child,
+  .ftbl tbody tr:last-child td:last-child { border-bottom: none; }
+  .rtbl tbody tr:last-child td:first-child,
+  .rtbl tbody tr:last-child td:last-child { border-radius: 0; }
   .rtbl td::before, .ftbl td::before {
     content: attr(data-label);
+    font-family: var(--font-sans);
     font-weight: var(--font-weight-semibold);
     color: var(--color-slate);
     font-size: var(--font-size-sm);
     flex-shrink: 0;
     margin-right: var(--space-11);
   }
-  .rtbl td:empty::before, .ftbl td:empty::before { display: none; }
-  .if-sm { width: 100%; justify-content: flex-end; }
-  .if-sm input { width: 60px !important; }
+  /* Hide the label only when data-label is empty (e.g. action buttons), not when the value is blank */
+  .rtbl td[data-label=""]::before, .ftbl td[data-label=""]::before { display: none; }
+  /* Remove alternating row colors when table switches to stacked layout */
+  .rtbl tbody tr:nth-child(even) td { background-color: transparent; }
 }
 
 @media (max-width: 480px) {
@@ -1057,13 +1138,8 @@ input, button, textarea, select { font-family: inherit; }
     margin-right: 0;
   }
 
-  /* Compact input fields in tables */
-  .if-sm {
-    width: 100%;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-  }
-  .if-sm input { width: 50px !important; flex-shrink: 0; }
+  /* Compact input fields in tables — keep token-based sizing, just allow full row width */
+  .if-sm { width: 100%; justify-content: flex-end; }
 
   /* Currency dropdown */
   .g3 { grid-template-columns: 1fr; }
@@ -1095,144 +1171,19 @@ input, button, textarea, select { font-family: inherit; }
 </head>
 <body>
 
-<!-- Mockup Navigator -->
-<nav class="mockup-nav">
-  <span class="mockup-nav-title">Design Mockup</span>
-  <button class="active" onclick="showScreen('settings',this)">0. Settings</button>
-  <button onclick="showScreen('login',this)">1. Login</button>
-  <button onclick="showScreen('dashboard',this)">2. Dashboard</button>
-  <button onclick="showScreen('generating',this)">3. Generating</button>
-  <button onclick="showScreen('report',this)">4. Report</button>
-  <span class="nav-divider">|</span>
-  <span class="nav-section-label">Notifications:</span>
-  <button class="nb-success" onclick="demoNotif('login-ok')">Login ✓</button>
-  <button class="nb-error"   onclick="demoNotif('login-fail')">Login ✗</button>
-  <button class="nb-success" onclick="demoNotif('report-ok')">Report ✓</button>
-  <button class="nb-error"   onclick="demoNotif('report-fail')">Report ✗</button>
-  <button class="nb-success" onclick="demoNotif('export-ok')">Export ✓</button>
-  <button class="nb-error"   onclick="demoNotif('export-fail')">Export ✗</button>
-  <button class="nb-info"    onclick="demoNotif('logout')">Logout</button>
-  <span class="viewport-info" id="viewport-info">Desktop</span>
-</nav>
-
 <div class="screen-container">
-
-<!-- ════════════════════════════════════════════════════════
-     SCREEN 0: MOCKUP SETTINGS
-     ════════════════════════════════════════════════════════ -->
-<div id="screen-settings" class="screen active">
-  <div class="page" style="max-width:800px;margin:0 auto;padding-top:var(--space-14);">
-    <div class="page-hd">
-      <h1>Mockup Settings</h1>
-      <p>Configure demo vehicles for the mockup. Add vehicles with different fuel types to see how the dashboard and report respond.</p>
-    </div>
-
-    <!-- Add Vehicle Form -->
-    <div class="sc">
-      <div class="sc-hd">
-        <div class="sc-ico"><span class="material-symbols-rounded">add_circle</span></div>
-        <div>
-          <div class="sc-ttl">Add Vehicle</div>
-          <div class="sc-sub">Enter a vehicle name and select fuel type — other fields are auto-generated</div>
-        </div>
-      </div>
-      <div class="g2" style="margin-bottom:var(--space-11);">
-        <div class="ig">
-          <label for="inp-vehicle-name">Vehicle Name</label>
-          <div class="if">
-            <span class="material-symbols-rounded">directions_car</span>
-            <input id="inp-vehicle-name" type="text" placeholder="e.g. Truck 01, Van A">
-          </div>
-        </div>
-        <div class="ig">
-          <label for="sel-fuel-type">Fuel / Energy Type</label>
-          <div class="if">
-            <span class="material-symbols-rounded">local_gas_station</span>
-            <select id="sel-fuel-type">
-              <optgroup label="Electric / Plug-in Hybrid">
-                <option value="BEV">Battery Electric Vehicle (BEV)</option>
-                <option value="PHEV">Plug-in Hybrid Electric Vehicle (PHEV)</option>
-              </optgroup>
-              <optgroup label="Fuel Cell">
-                <option value="FCEV">Fuel Cell Electric Vehicle (FCEV)</option>
-              </optgroup>
-              <optgroup label="Internal Combustion Engine (ICE)">
-                <option value="Petrol" selected>Gasoline / Petrol</option>
-                <option value="Diesel">Diesel</option>
-                <option value="Biodiesel">Biodiesel</option>
-                <option value="Ethanol">Ethanol</option>
-                <option value="CNG">Compressed Natural Gas (CNG)</option>
-                <option value="LPG">Propane / LPG</option>
-                <option value="OtherFuel">Other Fuel Type</option>
-              </optgroup>
-              <optgroup label="Other">
-                <option value="None">None / Unknown</option>
-                <option value="Manual">Manually Classified</option>
-              </optgroup>
-            </select>
-          </div>
-        </div>
-      </div>
-      <button class="btn-primary" onclick="addVehicle()">
-        <span class="material-symbols-rounded">add</span>
-        Add Vehicle
-      </button>
-    </div>
-
-    <!-- Configured Vehicles Table -->
-    <div class="sc">
-      <div class="sc-hd">
-        <div class="sc-ico"><span class="material-symbols-rounded">list</span></div>
-        <div>
-          <div class="sc-ttl">Configured Vehicles</div>
-          <div class="sc-sub" id="vehicle-count-sub">0 vehicles added</div>
-        </div>
-      </div>
-      <div class="tbl-wrap">
-        <table class="rtbl" id="vehicle-table">
-          <thead>
-            <tr>
-              <th>Vehicle Name</th>
-              <th>Fuel Type</th>
-              <th>Powertrain</th>
-              <th>Serial Number</th>
-              <th>Device ID</th>
-              <th>Last Communication</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="vehicle-table-body">
-            <tr id="no-vehicles-row">
-              <td colspan="7" style="text-align:center;color:var(--color-slate);padding:var(--space-13);">
-                No vehicles added yet. Use the form above to add demo vehicles.
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Continue Button -->
-    <div style="display:flex;justify-content:flex-end;margin-top:var(--space-13);">
-      <button class="btn-primary" onclick="continueToLogin()">
-        Continue to Login
-        <span class="material-symbols-rounded">arrow_forward</span>
-      </button>
-    </div>
-  </div>
-</div>
 
 <!-- ════════════════════════════════════════════════════════
      SCREEN 1: LOGIN
      ════════════════════════════════════════════════════════ -->
-<div id="screen-login" class="screen">
+<div id="screen-login" class="screen active">
 <div class="login-wrap">
   <div class="login-box">
     <div class="login-logo">
       <span class="material-symbols-rounded">speed</span>
-      <span>Idling ROI</span>
+      <span>Idling ROI Tool</span>
     </div>
-    <p class="login-sub">Fleet Analytics &mdash; Powered by MyGeotab API</p>
+    <p class="login-sub">Powered by MyGeotab</p>
 
     <div class="ig">
       <label for="inp-user">Username</label>
@@ -1286,14 +1237,14 @@ input, button, textarea, select { font-family: inherit; }
     <div class="nav-brand">
       <div class="nav-icon-wrap"><span class="material-symbols-rounded">speed</span></div>
       <div>
-        <div class="nav-title">Idling ROI</div>
-        <div class="nav-subtitle">Fleet Analytics</div>
+        <div class="nav-title">Idling ROI Tool</div>
+        <div class="nav-subtitle">Powered by MyGeotab</div>
       </div>
     </div>
     <div class="nav-user" id="nav-user" onclick="toggleLogout()">
       <div class="nav-user-txt">
-        <div class="nav-email">user@acme.com</div>
-        <div class="nav-dbid">acme_corp</div>
+        <div class="nav-email"></div>
+        <div class="nav-dbid"></div>
       </div>
       <div class="nav-avatar">
         <span class="material-symbols-rounded">account_circle</span>
@@ -1328,14 +1279,17 @@ input, button, textarea, select { font-family: inherit; }
         <!-- Rendered by updateDashboardFromSettings() -->
       </div>
 
-      <!-- Unknown vehicles banner + table (hidden by default since mockup data is always valid) -->
-      <div id="unassigned-section" class="hidden">
+      <!-- Unknown vehicles banner + table (shown when invalid powertrain detected) -->
+      <div id="unassigned-section" class="hidden" style="margin-top:var(--space-13)">
         <div class="banner banner-warn">
           <span class="material-symbols-rounded">warning</span>
-          <span><strong>4 vehicles</strong> have no valid powertrain or fuel type assigned. They are excluded from cost calculations until corrected in MyGeotab.</span>
+          <span></span>
         </div>
 
         <div class="tbl-wrap">
+          <div class="rtbl-info">
+            <span id="unassigned-info-text">Showing 0 of 0</span>
+          </div>
           <table class="rtbl">
             <thead>
               <tr>
@@ -1433,20 +1387,20 @@ input, button, textarea, select { font-family: inherit; }
           <label>Start Date</label>
           <div class="if">
             <span class="material-symbols-rounded">event</span>
-            <input type="date" id="inp-start-date" value="2025-04-01">
+            <input type="date" id="inp-start-date" value="">
           </div>
         </div>
         <div class="ig">
           <label>End Date</label>
           <div class="if">
             <span class="material-symbols-rounded">event</span>
-            <input type="date" id="inp-end-date" value="2025-12-31">
+            <input type="date" id="inp-end-date" value="">
           </div>
         </div>
       </div>
       <div class="hint">
         <span class="material-symbols-rounded">info</span>
-        <span id="date-range-hint">Analysis period: Apr 1, 2025 – Dec 31, 2025</span>
+        <span id="date-range-hint">Analysis period: —</span>
       </div>
     </div>
 
@@ -1467,12 +1421,43 @@ input, button, textarea, select { font-family: inherit; }
           <div class="if">
             <span class="material-symbols-rounded">payments</span>
             <select id="sel-currency">
-              <option value="USD">USD — US Dollar</option>
-              <option value="SGD">SGD — Singapore Dollar</option>
+              <option value="AED">AED — UAE Dirham</option>
+              <option value="ARS">ARS — Argentine Peso</option>
+              <option value="AUD">AUD — Australian Dollar</option>
+              <option value="BRL">BRL — Brazilian Real</option>
+              <option value="CAD">CAD — Canadian Dollar</option>
+              <option value="CHF">CHF — Swiss Franc</option>
+              <option value="CLP">CLP — Chilean Peso</option>
+              <option value="CNY">CNY — Chinese Yuan</option>
+              <option value="COP">COP — Colombian Peso</option>
+              <option value="CZK">CZK — Czech Koruna</option>
+              <option value="DKK">DKK — Danish Krone</option>
+              <option value="EGP">EGP — Egyptian Pound</option>
+              <option value="EUR">EUR — Euro</option>
+              <option value="GBP">GBP — British Pound</option>
+              <option value="HKD">HKD — Hong Kong Dollar</option>
+              <option value="HUF">HUF — Hungarian Forint</option>
               <option value="IDR">IDR — Indonesian Rupiah</option>
+              <option value="INR">INR — Indian Rupee</option>
+              <option value="JPY">JPY — Japanese Yen</option>
+              <option value="KRW">KRW — South Korean Won</option>
+              <option value="MXN">MXN — Mexican Peso</option>
               <option value="MYR">MYR — Malaysian Ringgit</option>
-              <option value="THB">THB — Thai Baht</option>
+              <option value="NOK">NOK — Norwegian Krone</option>
+              <option value="NZD">NZD — New Zealand Dollar</option>
+              <option value="PEN">PEN — Peruvian Sol</option>
               <option value="PHP">PHP — Philippine Peso</option>
+              <option value="PLN">PLN — Polish Złoty</option>
+              <option value="RON">RON — Romanian Leu</option>
+              <option value="SAR">SAR — Saudi Riyal</option>
+              <option value="SEK">SEK — Swedish Krona</option>
+              <option value="SGD">SGD — Singapore Dollar</option>
+              <option value="THB">THB — Thai Baht</option>
+              <option value="TRY">TRY — Turkish Lira</option>
+              <option value="TWD">TWD — Taiwan Dollar</option>
+              <option value="USD" selected>USD — US Dollar</option>
+              <option value="VND">VND — Vietnamese Dong</option>
+              <option value="ZAR">ZAR — South African Rand</option>
             </select>
           </div>
           <div class="hint">
@@ -1497,7 +1482,7 @@ input, button, textarea, select { font-family: inherit; }
           <tbody id="fuel-settings-body">
             <tr>
               <td colspan="5" style="text-align:center;color:var(--color-slate);padding:var(--space-13);">
-                No vehicles configured. Add vehicles in the Settings page.
+                No vehicles with a valid Powertrain or Fuel Type. Assign vehicles to the correct group in MyGeotab to enable cost calculations.
               </td>
             </tr>
           </tbody>
@@ -1511,13 +1496,16 @@ input, button, textarea, select { font-family: inherit; }
 
     <!-- Generate Button -->
     <div style="margin-bottom: 0.5rem">
-      <button class="btn-primary" onclick="showScreen('generating', null)">
+      <button id="btn-generate-report" class="btn-primary" onclick="showScreen('generating', null)">
         <span class="material-symbols-rounded">assessment</span>
         Generate Idling ROI Report
       </button>
     </div>
 
-    <div class="pfooter">Idling ROI Tool &mdash; Powered by Geotab &nbsp;|&nbsp; Data from MyGeotab API</div>
+    <div class="pfooter">
+      <div class="pfooter-left">&copy; 2026 Geotab Inc. All rights reserved.</div>
+      <div class="pfooter-right"><img class="pfooter-logo" src="geotab-logo(full-colour-rgb).png" alt="Geotab"></div>
+    </div>
   </div>
 </div>
 
@@ -1533,8 +1521,8 @@ input, button, textarea, select { font-family: inherit; }
         <div class="nav-brand">
           <div class="nav-icon-wrap"><span class="material-symbols-rounded">speed</span></div>
           <div>
-            <div class="nav-title">Idling ROI</div>
-            <div class="nav-subtitle">Fleet Analytics</div>
+            <div class="nav-title">Idling ROI Tool</div>
+            <div class="nav-subtitle">Powered by MyGeotab</div>
           </div>
         </div>
       </nav>
@@ -1554,28 +1542,28 @@ input, button, textarea, select { font-family: inherit; }
       </div>
     </div>
     <!-- Overlay -->
-    <div class="gen-overlay">
+    <div class="gen-overlay" id="gen-overlay">
       <div class="gen-spinner"></div>
       <div class="gen-title">Generating Report…</div>
-      <div class="gen-sub">Fetching trip and fuel data&hellip;</div>
+      <div class="gen-sub" id="gen-sub-text">Fetching trip and fuel data&hellip;</div>
       <div class="gen-steps">
-        <div class="gen-step gs-done">
+        <div class="gen-step gs-done" id="gen-step-0">
           <span class="material-symbols-rounded">check_circle</span>
           <span>Authenticating</span>
         </div>
-        <div class="gen-step gs-done">
-          <span class="material-symbols-rounded">check_circle</span>
+        <div class="gen-step gs-active" id="gen-step-1">
+          <span class="material-symbols-rounded">pending</span>
           <span>Fetching vehicles &amp; powertrain data</span>
         </div>
-        <div class="gen-step gs-active">
-          <span class="material-symbols-rounded">pending</span>
+        <div class="gen-step gs-pending" id="gen-step-2">
+          <span class="material-symbols-rounded">radio_button_unchecked</span>
           <span>Fetching trip data</span>
         </div>
-        <div class="gen-step gs-pending">
+        <div class="gen-step gs-pending" id="gen-step-3">
           <span class="material-symbols-rounded">radio_button_unchecked</span>
-          <span>Calculating idle consumption</span>
+          <span>Fetching fuel &amp; energy data</span>
         </div>
-        <div class="gen-step gs-pending">
+        <div class="gen-step gs-pending" id="gen-step-4">
           <span class="material-symbols-rounded">radio_button_unchecked</span>
           <span>Computing cost &amp; savings</span>
         </div>
@@ -1593,17 +1581,23 @@ input, button, textarea, select { font-family: inherit; }
     <div class="nav-brand">
       <div class="nav-icon-wrap"><span class="material-symbols-rounded">speed</span></div>
       <div>
-        <div class="nav-title">Idling ROI</div>
-        <div class="nav-subtitle">Fleet Analytics</div>
+        <div class="nav-title">Idling ROI Tool</div>
+        <div class="nav-subtitle">Powered by MyGeotab</div>
       </div>
     </div>
-    <div class="nav-user" onclick="toggleLogout()">
+    <div class="nav-user" id="nav-user-report" onclick="toggleLogout('report')">
       <div class="nav-user-txt">
-        <div class="nav-email">user@acme.com</div>
-        <div class="nav-dbid">acme_corp</div>
+        <div class="nav-email"></div>
+        <div class="nav-dbid"></div>
       </div>
       <div class="nav-avatar">
         <span class="material-symbols-rounded">account_circle</span>
+      </div>
+      <div class="logout-dropdown" id="logout-dropdown-report">
+        <button class="logout-btn" onclick="doLogout(event)">
+          <span class="material-symbols-rounded">logout</span>
+          Sign Out
+        </button>
       </div>
     </div>
   </nav>
@@ -1611,10 +1605,17 @@ input, button, textarea, select { font-family: inherit; }
   <div class="page">
     <div class="report-topbar">
       <div class="report-topbar-left">
+        <button class="btn-back" onclick="goBackToDashboard()">
+          <span class="material-symbols-rounded">arrow_circle_left</span>
+          Back to Dashboard
+        </button>
         <h1>Idling ROI Report</h1>
-        <div class="report-meta">
-          Apr 2025 – Dec 2025 &nbsp;&middot;&nbsp; 243 vehicles &nbsp;&middot;&nbsp; Generated 2 May 2026 &nbsp;&middot;&nbsp; acme_corp
-        </div>
+        <ul class="report-meta-list">
+          <li><strong>Database:</strong> <span id="rpt-meta-database">&mdash;</span></li>
+          <li><strong>Period:</strong> <span id="rpt-meta-period">&mdash;</span></li>
+          <li><strong>Vehicles Included:</strong> <span id="rpt-meta-vehicles">&mdash;</span></li>
+          <li><strong>Generated Date:</strong> <span id="rpt-meta-generated">&mdash;</span></li>
+        </ul>
       </div>
       <div class="report-actions">
         <button class="btn-export" onclick="demoNotif('print-ok')">
@@ -1623,86 +1624,13 @@ input, button, textarea, select { font-family: inherit; }
         <button class="btn-export" onclick="demoNotif('export-ok')">
           <span class="material-symbols-rounded">download</span> Download HTML
         </button>
+        <button class="btn-export" id="btn-diag-csv" onclick="downloadPerVehicleCsv()" title="Per-vehicle diagnostic CSV for cross-checking against MyGeotab reports">
+          <span class="material-symbols-rounded">bug_report</span> Diagnostic CSV
+        </button>
       </div>
     </div>
 
-    <!-- Trip Activity (moved above Idling Cost Overview per feedback) -->
-    <div class="sc">
-      <div class="sc-hd">
-        <div class="sc-ico"><span class="material-symbols-rounded">route</span></div>
-        <div>
-          <div class="sc-ttl">Trip Activity</div>
-          <div class="sc-sub">Driving and idling time breakdown across the analysis period</div>
-        </div>
-      </div>
-      <div class="g3">
-        <div class="stat-card">
-          <span class="material-symbols-rounded stat-card-icon">schedule</span>
-          <div class="stat-card-label">Total Driving Duration</div>
-          <div class="stat-card-value" style="font-size:1.4rem;" id="rpt-driving">34,088 hr</div>
-          <div class="stat-card-sub">Vehicle in motion</div>
-        </div>
-        <div class="stat-card">
-          <span class="material-symbols-rounded stat-card-icon">timer</span>
-          <div class="stat-card-label">Total Idle Duration</div>
-          <div class="stat-card-value" style="font-size:1.4rem;" id="rpt-idle">14,832 hr</div>
-          <div class="stat-card-sub">Engine on, speed = 0</div>
-        </div>
-        <div class="stat-card">
-          <span class="material-symbols-rounded stat-card-icon" style="color:var(--color-error)">percent</span>
-          <div class="stat-card-label">Idling %</div>
-          <div class="stat-card-value" style="color:var(--color-error);" id="rpt-idle-pct">30.3%</div>
-          <div class="stat-card-sub">idle / (driving + idle)</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Idling Cost Overview (3 cards only) -->
-    <div class="sc">
-      <div class="sc-hd">
-        <div class="sc-ico"><span class="material-symbols-rounded">analytics</span></div>
-        <div>
-          <div class="sc-ttl">Idling Cost Overview</div>
-          <div class="sc-sub" id="rpt-period-sub">Apr 2025 – Dec 2025 &middot; 243 vehicles</div>
-        </div>
-      </div>
-      <div class="g3">
-        <div class="stat-card">
-          <span class="material-symbols-rounded stat-card-icon">local_gas_station</span>
-          <div class="stat-card-label">Fuel &amp; Energy Consumed</div>
-          <div class="stat-card-value" style="font-size:1.25rem;" id="rpt-consumed">18,450 L</div>
-          <div class="stat-card-sub">+ <span style="font-family:var(--font-mono);color:var(--color-primary);">2,840 kWh</span> while idle</div>
-        </div>
-        <div class="stat-card">
-          <span class="material-symbols-rounded stat-card-icon" style="color:var(--color-error)">payments</span>
-          <div class="stat-card-label">Total Idle Cost</div>
-          <div class="stat-card-value" style="font-size:1.25rem;color:var(--color-error);" id="rpt-cost">USD 26,841</div>
-          <div class="stat-card-sub">At configured prices</div>
-        </div>
-        <div class="stat-card">
-          <span class="material-symbols-rounded stat-card-icon" style="color:var(--color-success)">savings</span>
-          <div class="stat-card-label">Savings at 25% Reduction</div>
-          <div class="stat-card-value" style="font-size:1.25rem;color:var(--color-success);" id="rpt-savings-25">USD 6,710</div>
-          <div class="stat-card-sub">Estimated annual impact</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Chart 1: Idle Duration by Powertrain -->
-    <div class="sc">
-      <div class="sc-hd">
-        <div class="sc-ico"><span class="material-symbols-rounded">bar_chart</span></div>
-        <div>
-          <div class="sc-ttl">Idle Duration by Powertrain Type</div>
-          <div class="sc-sub">Total idle hours per powertrain — Apr 2025 to Dec 2025</div>
-        </div>
-      </div>
-      <div class="chart-wrap">
-        <canvas id="chartIdleDuration"></canvas>
-      </div>
-    </div>
-
-    <!-- Chart 2: Monthly Activity Trend (combined idle + driving) -->
+    <!-- Monthly Activity Trend (moved to top per review with Ezanne and Neal) -->
     <div class="sc">
       <div class="sc-hd">
         <div class="sc-ico"><span class="material-symbols-rounded">show_chart</span></div>
@@ -1716,36 +1644,79 @@ input, button, textarea, select { font-family: inherit; }
       </div>
     </div>
 
-    <!-- Chart 3: Cost vs Savings -->
+    <!-- Trip Activity -->
     <div class="sc">
       <div class="sc-hd">
-        <div class="sc-ico"><span class="material-symbols-rounded">savings</span></div>
+        <div class="sc-ico"><span class="material-symbols-rounded">route</span></div>
         <div>
-          <div class="sc-ttl">Idle Cost vs Potential Savings</div>
-          <div class="sc-sub">Cost impact and savings at 25% reduction target per powertrain type (USD)</div>
+          <div class="sc-ttl">Trip Activity</div>
+          <div class="sc-sub">Driving and idling time breakdown across the analysis period</div>
         </div>
       </div>
-      <div class="chart-wrap">
-        <canvas id="chartCostSavings"></canvas>
+      <div class="g3">
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon">schedule</span>
+          <div class="stat-card-label">Total Driving Duration</div>
+          <div class="stat-card-value" id="rpt-driving">34,088 hr</div>
+          <div class="stat-card-sub">Vehicle in motion</div>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon">timer</span>
+          <div class="stat-card-label">Total Idle Duration</div>
+          <div class="stat-card-value" id="rpt-idle">14,832 hr</div>
+          <div class="stat-card-sub">Engine on, speed = 0</div>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon" style="color:var(--color-error)">percent</span>
+          <div class="stat-card-label">Idling %</div>
+          <div class="stat-card-value" style="color:var(--color-error);" id="rpt-idle-pct">30.3%</div>
+          <div class="stat-card-sub">idle / (driving + idle)</div>
+        </div>
       </div>
-      <div class="g2" style="margin-top:var(--space-13);">
+    </div>
+
+    <!-- Idling Cost Overview (consolidated with Scaled Annual Savings per review) -->
+    <div class="sc cost-overview">
+      <div class="sc-hd">
+        <div class="sc-ico"><span class="material-symbols-rounded">analytics</span></div>
+        <div>
+          <div class="sc-ttl">Idling Cost Overview</div>
+          <div class="sc-sub" id="rpt-period-sub">&mdash;</div>
+        </div>
+      </div>
+      <div class="g4">
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon">local_gas_station</span>
+          <div class="stat-card-label">Fuel &amp; Energy Consumed</div>
+          <div class="stat-card-value" id="rpt-consumed">18,450 L</div>
+          <div class="stat-card-sub">+ <span style="font-family:var(--font-mono);color:var(--color-primary);">2,840 kWh</span> while idle</div>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon" style="color:var(--color-error)">payments</span>
+          <div class="stat-card-label">Total Idle Cost</div>
+          <div class="stat-card-value" style="color:var(--color-error);" id="rpt-cost">USD 26,841</div>
+          <div class="stat-card-sub">At configured prices</div>
+        </div>
         <div class="stat-card">
           <span class="material-symbols-rounded stat-card-icon" style="color:var(--color-success)">savings</span>
-          <div class="stat-card-label">Annual Savings at 25% Reduction</div>
-          <div class="stat-card-value" style="font-size:1.4rem;color:var(--color-success);" id="rpt-annual-savings">USD 6,710</div>
+          <div class="stat-card-label">Savings at 25% Reduction</div>
+          <div class="stat-card-value" style="color:var(--color-success);" id="rpt-savings-25">USD 6,710</div>
           <div class="stat-card-sub" id="rpt-current-count">Based on 243 current vehicles</div>
         </div>
         <div class="stat-card">
           <span class="material-symbols-rounded stat-card-icon" style="color:var(--color-accent)">trending_up</span>
           <div class="stat-card-label">Scaled Annual Savings</div>
-          <div class="stat-card-value" style="font-size:1.4rem;color:var(--color-accent);" id="rpt-scaled-savings">USD 2,761</div>
+          <div class="stat-card-value" style="color:var(--color-accent);" id="rpt-scaled-savings">USD 2,761</div>
           <div class="stat-card-sub" id="rpt-scaled-sub">Projected for 100 estimated vehicles</div>
         </div>
       </div>
     </div>
 
+    <div class="pfooter">
+      <div class="pfooter-left">&copy; 2026 Geotab Inc. All rights reserved.</div>
+      <div class="pfooter-right"><img class="pfooter-logo" src="geotab-logo(full-colour-rgb).png" alt="Geotab"></div>
+    </div>
   </div><!-- /page -->
-  <div class="pfooter">Idling ROI Tool &mdash; Powered by Geotab &nbsp;|&nbsp; Data from MyGeotab API</div>
 </div>
 
 </div><!-- /screen-container -->
@@ -1769,16 +1740,18 @@ input, button, textarea, select { font-family: inherit; }
 /* ─── Vehicle data ─── */
 let configuredVehicles = [];
 
+function val(v) { return (v == null || v === '') ? '—' : v; }
+
 /* Aligned with MyGeotab GroupPowertrainAndFuelTypeId hierarchy */
 const FUEL_TYPES = {
   // Electric / Plug-in Hybrid
-  'BEV':       { powertrain: 'Electric',  label: 'BEV',       badge: 'fb-bev',    icon: 'bolt',           color: '#2E7D32', unit: 'kWh', idleRate: 2.0 },
-  'PHEV':      { powertrain: 'Plug-in',   label: 'PHEV',      badge: 'fb-phev',   icon: 'electric_car',   color: '#6d28d9', unit: 'kWh+L', idleRate: '1.5 kWh/hr + 0.5 L/hr' },
+  'BEV':       { powertrain: 'Electric',  label: 'BEV',       badge: 'fb-bev',    icon: 'bolt',           color: '#2E7D32', unit: 'kWh', idleRate: 3.0 },
+  'PHEV':      { powertrain: 'Plug-in',   label: 'PHEV',      badge: 'fb-phev',   icon: 'electric_car',   color: '#6d28d9', unit: 'kWh+L', idleRate: '1.5 kWh/hr + 0.3 L/hr' },
   // Fuel Cell
   'FCEV':      { powertrain: 'Fuel Cell', label: 'FCEV',      badge: 'fb-fcev',   icon: 'water_drop',     color: '#1565c0', unit: 'kg', idleRate: 0.3 },
   // ICE Fuels
-  'Petrol':    { powertrain: 'ICE',       label: 'Gasoline',  badge: 'fb-petrol', icon: 'local_gas_station', color: '#b45309', unit: 'L', idleRate: 1.0 },
-  'Diesel':    { powertrain: 'ICE',       label: 'Diesel',    badge: 'fb-diesel', icon: 'opacity',        color: '#E65100', unit: 'L', idleRate: 1.2 },
+  'Petrol':    { powertrain: 'ICE',       label: 'Gasoline',  badge: 'fb-petrol', icon: 'local_gas_station', color: '#b45309', unit: 'L', idleRate: 0.6 },
+  'Diesel':    { powertrain: 'ICE',       label: 'Diesel',    badge: 'fb-diesel', icon: 'opacity',        color: '#E65100', unit: 'L', idleRate: 3.0 },
   'Biodiesel': { powertrain: 'ICE',       label: 'Biodiesel', badge: 'fb-biodiesel', icon: 'eco',         color: '#558b2f', unit: 'L', idleRate: 1.2 },
   'Ethanol':   { powertrain: 'ICE',       label: 'Ethanol',   badge: 'fb-ethanol', icon: 'local_bar',     color: '#ad1457', unit: 'L', idleRate: 1.3 },
   'CNG':       { powertrain: 'ICE',       label: 'CNG',       badge: 'fb-cng',    icon: 'propane_tank',   color: '#00838f', unit: 'kg', idleRate: 0.8 },
@@ -1789,84 +1762,920 @@ const FUEL_TYPES = {
   'Manual':    { powertrain: 'Manual',    label: 'Manual',    badge: 'fb-manual', icon: 'tune',           color: '#5e35b1', unit: '—', idleRate: '—' }
 };
 
-function generateSerial() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let s = 'GT9-';
-  for (let i = 0; i < 6; i++) s += chars[Math.floor(Math.random() * chars.length)];
-  return s;
+/* ═══════════════════════════════════════════════════════════════════════════
+   MyGeotab API Integration
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const POWERTRAIN_GROUP_MAP = {
+  'GroupBatteryElectricVehicleId': 'BEV',
+  'GroupPluginHybridElectricVehicleId': 'PHEV',
+  'GroupFuelCellElectricVehicleId': 'FCEV',
+  'GroupManuallyClassifiedPowertrainId': 'Manual',
+  'GroupGasolinePetrolId': 'Petrol',
+  'GroupDieselId': 'Diesel',
+  'GroupBiodieselId': 'Biodiesel',
+  'GroupEthanolId': 'Ethanol',
+  'GroupCompressedNaturalGasId': 'CNG',
+  'GroupPropaneLiquifiedPetroleumGasId': 'LPG',
+  'GroupOtherFuelId': 'OtherFuel'
+};
+
+class ApiError extends Error {
+  constructor(name, message, data) {
+    super(message);
+    this.geotabName = name;
+    this.data = data;
+  }
+  isSessionExpired() {
+    return this.geotabName === 'InvalidUserException' ||
+           this.geotabName === 'SessionExpiredException' ||
+           /session.*expired/i.test(this.message);
+  }
+  isAuthFailure() {
+    return this.geotabName === 'InvalidUserException' && !api.session?.sessionId;
+  }
+  isRateLimited() {
+    return this.geotabName === 'OverLimitException';
+  }
 }
 
-function generateDeviceId() {
-  const hex = '0123456789abcdef';
-  let id = '';
-  for (let i = 0; i < 16; i++) id += hex[Math.floor(Math.random() * hex.length)];
-  return id;
+const api = {
+  session: null,
+  requestId: 0,
+
+  async call(method, params = {}, { skipCredentials = false } = {}) {
+    const server = api.session?.serverPath || 'my';
+    const endpoint = `https://${server}.geotab.com/apiv1`;
+
+    const body = {
+      jsonrpc: '2.0',
+      method: method,
+      params: { ...params },
+      id: api.requestId++
+    };
+
+    if (!skipCredentials && api.session?.sessionId) {
+      body.params.credentials = {
+        sessionId: api.session.sessionId,
+        userName: api.session.userName,
+        database: api.session.database
+      };
+    }
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+      throw new ApiError('NetworkError', `HTTP ${response.status}: ${response.statusText}`, null);
+    }
+
+    const json = await response.json();
+
+    if (json.error) {
+      const err = json.error;
+      throw new ApiError(err.name || 'UnknownError', err.message || 'Unknown API error', err.data);
+    }
+
+    return json.result;
+  },
+
+  async callWithRetry(method, params = {}, retries = 3) {
+    let lastError;
+    for (let attempt = 0; attempt < retries; attempt++) {
+      try {
+        return await api.call(method, params);
+      } catch (err) {
+        lastError = err;
+        if (err.isSessionExpired() && api.session?.password) {
+          await api.authenticate({
+            userName: api.session.userName,
+            database: api.session.database,
+            password: api.session.password
+          });
+          continue;
+        }
+        if (err.isRateLimited() && attempt < retries - 1) {
+          await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000));
+          continue;
+        }
+        throw err;
+      }
+    }
+    throw lastError;
+  },
+
+  async authenticate({ userName, database, password }) {
+    const result = await api.call('Authenticate', {
+      userName,
+      database,
+      password
+    }, { skipCredentials: true });
+
+    let serverPath = 'my';
+    if (result.path && result.path !== 'ThisServer') {
+      serverPath = result.path.replace('.geotab.com', '');
+    }
+
+    api.session = {
+      userName: result.credentials.userName,
+      database: result.credentials.database,
+      sessionId: result.credentials.sessionId,
+      serverPath: serverPath,
+      password: password,
+      timestamp: Date.now(),
+      timeZoneId: 'UTC',
+      displayCurrency: null
+    };
+
+    try {
+      const users = await api.call('Get', { typeName: 'User', search: { name: api.session.userName }, resultsLimit: 1 });
+      if (users[0]?.timeZoneId) {
+        api.session.timeZoneId = users[0].timeZoneId;
+      }
+      if (users[0]?.displayCurrency) {
+        api.session.displayCurrency = users[0].displayCurrency;
+      }
+    } catch (e) { /* ignore, use UTC */ }
+
+    sessionStorage.setItem('geotab.session', JSON.stringify({
+      userName: api.session.userName,
+      database: api.session.database,
+      sessionId: api.session.sessionId,
+      serverPath: api.session.serverPath,
+      timestamp: api.session.timestamp,
+      timeZoneId: api.session.timeZoneId,
+      displayCurrency: api.session.displayCurrency
+    }));
+
+    return api.session;
+  },
+
+  async logout() {
+    try {
+      await api.call('Logout', {});
+    } catch (e) { /* ignore */ }
+    api.session = null;
+    sessionStorage.removeItem('geotab.session');
+  },
+
+  restoreSession() {
+    const cached = sessionStorage.getItem('geotab.session');
+    if (cached) {
+      api.session = JSON.parse(cached);
+      return true;
+    }
+    return false;
+  },
+
+  async verifySession() {
+    if (!api.session?.sessionId) return false;
+    try {
+      await api.call('Get', { typeName: 'User', search: { name: api.session.userName }, resultsLimit: 1 });
+      return true;
+    } catch (e) {
+      api.session = null;
+      sessionStorage.removeItem('geotab.session');
+      return false;
+    }
+  }
+};
+
+async function bootstrapSession() {
+  if (!api.restoreSession()) {
+    return false;
+  }
+  const valid = await api.verifySession();
+  if (valid) {
+    document.querySelectorAll('.nav-email').forEach(el => el.textContent = api.session.userName);
+    document.querySelectorAll('.nav-dbid').forEach(el => el.textContent = api.session.database);
+    initDatePickers();
+    applyDisplayCurrency();
+    return true;
+  }
+  return false;
 }
 
-function generateLastComm() {
+function applyDisplayCurrency() {
+  const raw = api.session?.displayCurrency;
+  if (!raw) return;
+  const sel = document.getElementById('sel-currency');
+  if (!sel) return;
+  const code = raw.toUpperCase();
+  const match = Array.from(sel.options).find(o => o.value === code);
+  if (!match) return;
+  sel.value = match.value;
+  sel.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
+function initDatePickers() {
+  const tz = api.session?.timeZoneId || 'UTC';
+  const today = getTodayInTimezone(tz);
+  const firstOfMonth = today.slice(0, 8) + '01';
+
+  document.getElementById('inp-start-date').value = firstOfMonth;
+  document.getElementById('inp-end-date').value = today;
+  updateDateRangeHint();
+}
+
+function getTodayInTimezone(timeZoneId) {
   const now = new Date();
-  const daysBack = Math.floor(Math.random() * 7);
-  const d = new Date(now - daysBack * 86400000 - Math.floor(Math.random() * 86400000));
-  const day = d.getDate();
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const hr = String(d.getHours()).padStart(2, '0');
-  const mn = String(d.getMinutes()).padStart(2, '0');
-  return day + ' ' + months[d.getMonth()] + ' ' + d.getFullYear() + ', ' + hr + ':' + mn;
+  const parts = new Intl.DateTimeFormat('en-CA', { timeZone: timeZoneId }).formatToParts(now);
+  const { year, month, day } = parts.reduce((acc, p) => ({ ...acc, [p.type]: p.value }), {});
+  return year + '-' + month + '-' + day;
 }
 
-function addVehicle() {
-  const nameInput = document.getElementById('inp-vehicle-name');
-  const fuelSelect = document.getElementById('sel-fuel-type');
-  const name = nameInput.value.trim();
-  if (!name) { nameInput.focus(); return; }
+function getDateInUTC(dateStr, timeZoneId, endOfDay = false) {
+  const timeStr = endOfDay ? 'T23:59:59' : 'T00:00:00';
+  const localDateStr = dateStr + timeStr;
 
-  const fuelType = FUEL_TYPES[fuelSelect.value];
-  configuredVehicles.push({
-    name: name,
-    fuel: fuelSelect.value,
-    powertrain: fuelType.powertrain,
-    serial: generateSerial(),
-    deviceId: generateDeviceId(),
-    lastComm: generateLastComm()
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: timeZoneId,
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+    hour12: false
   });
 
-  nameInput.value = '';
-  renderVehicleTable();
+  const anchorDate = new Date(localDateStr + 'Z');
+  const parts = formatter.formatToParts(anchorDate);
+  const getPart = (type) => parts.find(p => p.type === type)?.value || '00';
+
+  const localNow = new Date();
+  const utcNow = new Date(localNow.toLocaleString('en-US', { timeZone: 'UTC' }));
+  const tzNow = new Date(localNow.toLocaleString('en-US', { timeZone: timeZoneId }));
+  const offsetMs = tzNow - utcNow;
+
+  const localDate = new Date(dateStr + timeStr);
+  const utcDate = new Date(localDate.getTime() - offsetMs);
+  return utcDate.toISOString();
 }
 
-function removeVehicle(index) {
-  configuredVehicles.splice(index, 1);
-  renderVehicleTable();
+function updateDateRangeHint() {
+  const startEl = document.getElementById('inp-start-date');
+  const endEl = document.getElementById('inp-end-date');
+  const hint = document.getElementById('date-range-hint');
+  if (!startEl || !endEl) return;
+  let startVal = startEl.value;
+  let endVal = endEl.value;
+
+  // Constrain end >= start at the input level so the native picker enforces it
+  if (startVal) endEl.min = startVal;
+  if (endVal) startEl.max = endVal;
+
+  // Auto-correct if end < start (e.g. user edited start after picking end)
+  if (startVal && endVal && endVal < startVal) {
+    endEl.value = startVal;
+    endVal = startVal;
+  }
+
+  if (!hint || !startVal || !endVal) return;
+
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const startD = new Date(startVal + 'T00:00:00');
+  const endD = new Date(endVal + 'T00:00:00');
+  const startStr = months[startD.getMonth()] + ' ' + startD.getDate() + ', ' + startD.getFullYear();
+  const endStr = months[endD.getMonth()] + ' ' + endD.getDate() + ', ' + endD.getFullYear();
+  hint.textContent = 'Analysis period: ' + startStr + ' – ' + endStr;
 }
 
-function renderVehicleTable() {
-  const tbody = document.getElementById('vehicle-table-body');
-  const countSub = document.getElementById('vehicle-count-sub');
-  countSub.textContent = configuredVehicles.length + ' vehicle' + (configuredVehicles.length !== 1 ? 's' : '') + ' added';
+async function* apiPaginate(method, params, resultsLimit = 1000) {
+  let lastId = null;
+  while (true) {
+    const pageParams = {
+      ...params,
+      resultsLimit: resultsLimit
+    };
+    if (lastId) {
+      pageParams.search = { ...pageParams.search, fromId: lastId };
+    }
+    const page = await api.callWithRetry(method, pageParams);
+    if (!page || page.length === 0) return;
+    yield page;
+    if (page.length < resultsLimit) return;
+    lastId = page[page.length - 1].id;
+  }
+}
 
-  if (configuredVehicles.length === 0) {
-    tbody.innerHTML = '<tr id="no-vehicles-row"><td colspan="7" style="text-align:center;color:var(--color-slate);padding:var(--space-13);">No vehicles added yet. Use the form above to add demo vehicles.</td></tr>';
+function showApiError(err, retryAction = null) {
+  const cfg = {
+    type: 'error',
+    icon: 'error',
+    title: err.isSessionExpired() ? 'Session Expired' : 'API Error',
+    msg: err.message || 'An unexpected error occurred.',
+    dismissLabel: 'Close'
+  };
+  if (err.isSessionExpired()) {
+    cfg.actionLabel = 'Sign In';
+    cfg.action = () => {
+      showScreen('login');
+    };
+  } else if (retryAction) {
+    cfg.actionLabel = 'Retry';
+    cfg.action = retryAction;
+  }
+  showNotif(cfg);
+}
+
+let fleetLoaded = false;
+let reportData = null;
+let groupAncestryMap = {};
+
+function renderDashboardSkeletons() {
+  const container = document.getElementById('fleet-cards');
+  if (container) {
+    // 6 placeholder cards (Total + 5 typical fuel types)
+    let html = '';
+    for (let i = 0; i < 6; i++) {
+      html +=
+        '<div class="stat-card">' +
+          '<span class="material-symbols-rounded stat-card-icon skeleton" style="width:20px;height:20px;">&nbsp;</span>' +
+          '<div class="stat-card-label"><span class="skeleton skeleton-block" style="width:60%;">&nbsp;</span></div>' +
+          '<div class="stat-card-value"><span class="skeleton skeleton-block" style="width:50%;height:1.4rem;">&nbsp;</span></div>' +
+          '<div class="stat-card-sub"><span class="skeleton" style="width:70%;">&nbsp;</span></div>' +
+        '</div>';
+    }
+    container.innerHTML = html;
+  }
+
+  // Show unassigned section with skeleton rows so user sees something is loading
+  const section = document.getElementById('unassigned-section');
+  if (section) {
+    section.classList.remove('hidden');
+    const banner = section.querySelector('.banner span:last-child');
+    if (banner) banner.innerHTML = '<span class="skeleton" style="width:240px;">&nbsp;</span>';
+    const tbody = section.querySelector('tbody');
+    if (tbody) {
+      let rows = '';
+      for (let i = 0; i < 5; i++) {
+        rows +=
+          '<tr>' +
+            '<td><span class="skeleton" style="width:120px;">&nbsp;</span></td>' +
+            '<td><span class="skeleton" style="width:100px;">&nbsp;</span></td>' +
+            '<td><span class="skeleton" style="width:140px;">&nbsp;</span></td>' +
+            '<td><span class="skeleton" style="width:110px;">&nbsp;</span></td>' +
+            '<td><span class="skeleton" style="width:130px;">&nbsp;</span></td>' +
+          '</tr>';
+      }
+      tbody.innerHTML = rows;
+    }
+    const infoEl = document.getElementById('unassigned-info-text');
+    if (infoEl) infoEl.innerHTML = '<span class="skeleton" style="width:120px;">&nbsp;</span>';
+    // Remove any leftover pagination from previous renders
+    const pag = section.querySelector('.pagination');
+    if (pag) pag.remove();
+  }
+}
+
+async function loadDashboardFromApi() {
+  if (fleetLoaded) return;
+  if (!api.session?.sessionId) return;
+
+  renderDashboardSkeletons();
+
+  try {
+    const nowUtc = new Date().toISOString();
+    const allDevices = [];
+    for await (const batch of apiPaginate('Get', { typeName: 'Device', search: { fromDate: nowUtc } })) {
+      allDevices.push(...batch);
+    }
+
+    const allGroups = [];
+    for await (const batch of apiPaginate('Get', { typeName: 'Group' })) {
+      allGroups.push(...batch);
+    }
+
+    groupAncestryMap = buildGroupAncestryMap(allGroups);
+
+    configuredVehicles = allDevices.map(d => {
+      const fuel = resolveFuelType(d, groupAncestryMap);
+      const lastComm = d.lastCommunicationTime
+        ? formatLastComm(new Date(d.lastCommunicationTime))
+        : 'Never';
+      return {
+        name: d.name,
+        fuel: fuel,
+        powertrain: FUEL_TYPES[fuel]?.powertrain || 'Unknown',
+        serial: d.serialNumber || '',
+        deviceId: d.id,
+        lastComm: lastComm
+      };
+    });
+
+    fleetLoaded = true;
+    updateDashboardFromSettings();
+  } catch (err) {
+    showApiError(err, loadDashboardFromApi);
+  }
+}
+
+function buildGroupAncestryMap(groups) {
+  const map = {};
+  const groupById = {};
+  groups.forEach(g => groupById[g.id] = g);
+
+  function getAncestors(groupId, visited = new Set()) {
+    if (map[groupId]) return map[groupId];
+    if (visited.has(groupId)) return new Set();
+    visited.add(groupId);
+
+    const ancestors = new Set([groupId]);
+    const group = groupById[groupId];
+    if (group?.parent?.id) {
+      const parentAncestors = getAncestors(group.parent.id, visited);
+      parentAncestors.forEach(a => ancestors.add(a));
+    }
+    map[groupId] = ancestors;
+    return ancestors;
+  }
+
+  groups.forEach(g => getAncestors(g.id));
+  return map;
+}
+
+function resolveFuelType(device, ancestryMap) {
+  if (!device.groups || device.groups.length === 0) return 'None';
+
+  // Collect every powertrain group the device resolves to (via direct membership or ancestry).
+  // A vehicle can carry both a valid fuel group (e.g. Diesel) AND "Manually Classified Powertrain"
+  // when the powertrain was manually assigned in MyGeotab — prefer the valid fuel type.
+  const matched = new Set();
+  for (const grp of device.groups) {
+    const ancestors = ancestryMap[grp.id] || new Set([grp.id]);
+    for (const ancestorId of ancestors) {
+      const fuel = POWERTRAIN_GROUP_MAP[ancestorId];
+      if (fuel) matched.add(fuel);
+    }
+  }
+  if (matched.size === 0) return 'None';
+
+  for (const fuel of matched) {
+    if (!INVALID_FUEL_TYPES.includes(fuel)) return fuel;
+  }
+  // Only invalid types matched (Manual / OtherFuel / None) — return the first one
+  return matched.values().next().value;
+}
+
+function formatLastComm(date) {
+  const day = date.getDate();
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const hr = String(date.getHours()).padStart(2, '0');
+  const mn = String(date.getMinutes()).padStart(2, '0');
+  return day + ' ' + months[date.getMonth()] + ' ' + date.getFullYear() + ', ' + hr + ':' + mn;
+}
+
+function updateGenStep(stepNum, state) {
+  const step = document.getElementById('gen-step-' + stepNum);
+  if (!step) return;
+  step.classList.remove('gs-done', 'gs-active', 'gs-pending');
+  step.classList.add('gs-' + state);
+  const icon = step.querySelector('.material-symbols-rounded');
+  if (state === 'done') icon.textContent = 'check_circle';
+  else if (state === 'active') icon.textContent = 'pending';
+  else icon.textContent = 'radio_button_unchecked';
+}
+
+function updateGenSubText(text) {
+  const el = document.getElementById('gen-sub-text');
+  if (el) el.textContent = text;
+}
+
+function getSelectedSettings() {
+  const currency = document.getElementById('sel-currency')?.value || 'USD';
+  const startDate = document.getElementById('inp-start-date')?.value || '';
+  const endDate = document.getElementById('inp-end-date')?.value || '';
+  const estimatedVehicles = parseInt(document.getElementById('inp-est-vehicles')?.value || '0', 10);
+
+  const fuelSettings = {};
+  const tbody = document.getElementById('fuel-settings-body');
+  if (tbody) {
+    tbody.querySelectorAll('tr').forEach(tr => {
+      const badge = tr.querySelector('.fbadge');
+      if (!badge) return;
+      const fuelKey = Object.keys(FUEL_TYPES).find(k => FUEL_TYPES[k].label === badge.textContent.trim());
+      if (!fuelKey) return;
+      const inputs = tr.querySelectorAll('input[type="number"]');
+      if (fuelKey === 'PHEV' && inputs.length >= 4) {
+        fuelSettings[fuelKey] = {
+          priceKwh: parseFloat(inputs[0].value) || 0,
+          priceL: parseFloat(inputs[1].value) || 0,
+          idleKwh: parseFloat(inputs[2].value) || 0,
+          idleL: parseFloat(inputs[3].value) || 0
+        };
+      } else if (inputs.length >= 2) {
+        fuelSettings[fuelKey] = {
+          price: parseFloat(inputs[0].value) || 0,
+          idleRate: parseFloat(inputs[1].value) || 0
+        };
+      }
+    });
+  }
+
+  return { currency, startDate, endDate, estimatedVehicles, fuelSettings };
+}
+
+async function runReportGeneration() {
+  const settings = getSelectedSettings();
+
+  if (!settings.startDate || !settings.endDate) {
+    showNotif({
+      type: 'error',
+      icon: 'error',
+      title: 'Invalid Date Range',
+      msg: 'Please select a valid start and end date.',
+      dismissLabel: 'Close'
+    });
+    showScreen('dashboard');
     return;
   }
 
-  tbody.innerHTML = configuredVehicles.map((v, i) => {
-    const ft = FUEL_TYPES[v.fuel];
-    return '<tr>' +
-      '<td data-label="Vehicle Name">' + v.name + '</td>' +
-      '<td data-label="Fuel Type"><span class="fbadge ' + ft.badge + '">' + ft.label + '</span></td>' +
-      '<td data-label="Powertrain">' + ft.powertrain + '</td>' +
-      '<td data-label="Serial" style="font-family:var(--font-mono);font-size:var(--font-size-sm)">' + v.serial + '</td>' +
-      '<td data-label="Device ID" style="font-family:var(--font-mono);font-size:var(--font-size-sm)">' + v.deviceId + '</td>' +
-      '<td data-label="Last Comm" style="color:var(--color-slate);font-size:var(--font-size-sm)">' + v.lastComm + '</td>' +
-      '<td data-label=""><button class="btn-action" style="color:var(--color-error);" onclick="removeVehicle(' + i + ')"><span class="material-symbols-rounded">delete</span>Remove</button></td>' +
-      '</tr>';
-  }).join('');
+  const tz = api.session?.timeZoneId || 'UTC';
+  const fromDate = getDateInUTC(settings.startDate, tz, false);
+  const toDate = getDateInUTC(settings.endDate, tz, true);
+
+  updateGenStep(0, 'done');
+  updateGenStep(1, 'active');
+  updateGenStep(2, 'pending');
+  updateGenStep(3, 'pending');
+  updateGenStep(4, 'pending');
+  updateGenSubText('Fetching vehicles & powertrain data…');
+
+  try {
+    if (!fleetLoaded) {
+      const nowUtc = new Date().toISOString();
+      const allDevices = [];
+      for await (const batch of apiPaginate('Get', { typeName: 'Device', search: { fromDate: nowUtc } })) {
+        allDevices.push(...batch);
+        updateGenSubText('Fetched ' + allDevices.length + ' devices…');
+      }
+
+      const allGroups = [];
+      for await (const batch of apiPaginate('Get', { typeName: 'Group' })) {
+        allGroups.push(...batch);
+      }
+
+      groupAncestryMap = buildGroupAncestryMap(allGroups);
+
+      configuredVehicles = allDevices.map(d => {
+        const fuel = resolveFuelType(d, groupAncestryMap);
+        const lastComm = d.lastCommunicationTime
+          ? formatLastComm(new Date(d.lastCommunicationTime))
+          : 'Never';
+        return {
+          name: d.name,
+          fuel: fuel,
+          powertrain: FUEL_TYPES[fuel]?.powertrain || 'Unknown',
+          serial: d.serialNumber || '',
+          deviceId: d.id,
+          lastComm: lastComm
+        };
+      });
+
+      fleetLoaded = true;
+    }
+
+    updateGenStep(1, 'done');
+    updateGenStep(2, 'active');
+    updateGenSubText('Fetching trip data…');
+
+    const deviceIds = configuredVehicles
+      .filter(v => !INVALID_FUEL_TYPES.includes(v.fuel))
+      .map(v => v.deviceId);
+    const allTrips = [];
+    let tripDeviceIdx = 0;
+    const BATCH_SIZE = 50;
+
+    while (tripDeviceIdx < deviceIds.length) {
+      const batchDeviceIds = deviceIds.slice(tripDeviceIdx, tripDeviceIdx + BATCH_SIZE);
+      tripDeviceIdx += BATCH_SIZE;
+
+      for (const deviceId of batchDeviceIds) {
+        try {
+          const trips = await api.callWithRetry('Get', {
+            typeName: 'Trip',
+            search: { fromDate, toDate, deviceSearch: { id: deviceId } },
+            resultsLimit: 10000
+          });
+          if (trips && trips.length > 0) {
+            allTrips.push(...trips);
+          }
+        } catch (e) {
+        }
+      }
+      updateGenSubText('Fetched trips for ' + Math.min(tripDeviceIdx, deviceIds.length) + '/' + deviceIds.length + ' devices (' + allTrips.length + ' trips)…');
+    }
+
+    updateGenStep(2, 'done');
+    updateGenStep(3, 'active');
+    updateGenSubText('Fetching fuel & energy data…');
+
+    const allFuelRecords = [];
+    let fuelDeviceIdx = 0;
+
+    while (fuelDeviceIdx < deviceIds.length) {
+      const batchDeviceIds = deviceIds.slice(fuelDeviceIdx, fuelDeviceIdx + BATCH_SIZE);
+      fuelDeviceIdx += BATCH_SIZE;
+
+      for (const deviceId of batchDeviceIds) {
+        try {
+          const fuelRecords = await api.callWithRetry('Get', {
+            typeName: 'FuelAndEnergyUsed',
+            search: { fromDate, toDate, deviceSearch: { id: deviceId } },
+            resultsLimit: 10000
+          });
+          if (fuelRecords && fuelRecords.length > 0) {
+            allFuelRecords.push(...fuelRecords);
+          }
+        } catch (e) {
+        }
+      }
+      updateGenSubText('Fetched fuel data for ' + Math.min(fuelDeviceIdx, deviceIds.length) + '/' + deviceIds.length + ' devices (' + allFuelRecords.length + ' records)…');
+    }
+
+    updateGenStep(3, 'done');
+    updateGenStep(4, 'active');
+    updateGenSubText('Computing cost & savings…');
+
+    reportData = computeReport(configuredVehicles, allTrips, allFuelRecords, settings);
+
+    updateGenStep(4, 'done');
+    updateGenSubText('Report ready!');
+
+    // Hide spinner overlay immediately on success — notification modal is the status indicator
+    const overlay = document.getElementById('gen-overlay');
+    if (overlay) overlay.classList.add('hidden');
+    demoNotif('report-ok');
+
+  } catch (err) {
+    const overlay = document.getElementById('gen-overlay');
+    if (overlay) overlay.classList.add('hidden');
+    showApiError(err, runReportGeneration);
+    showScreen('dashboard');
+  }
 }
 
-function continueToLogin() {
-  updateDashboardFromSettings();
-  const navBtns = document.querySelectorAll('.mockup-nav button');
-  showScreen('login', navBtns[1]);
+function computeReport(devices, trips, fuelRecords, settings) {
+  const deviceById = {};
+  devices.forEach(d => { deviceById[d.deviceId] = d; });
+
+  const tripsByDevice = {};
+  trips.forEach(t => {
+    const did = t.device?.id || t.deviceId;
+    if (!tripsByDevice[did]) tripsByDevice[did] = [];
+    tripsByDevice[did].push(t);
+  });
+
+  const fuelByDevice = {};
+  fuelRecords.forEach(f => {
+    const did = f.device?.id || f.deviceId;
+    if (!fuelByDevice[did]) fuelByDevice[did] = [];
+    fuelByDevice[did].push(f);
+  });
+
+  const byFuelType = {};
+  let totalIdleHours = 0;
+  let totalDriveHours = 0;
+  let totalIdleFuelL = 0;
+  let totalIdleKwh = 0;
+  let totalIdleCost = 0;
+  let devicesWithData = 0;
+  let devicesMissingData = [];
+  let inactiveDevices = []; // valid powertrain, but no trips & no fuel records in window
+  const trendData = {};
+  const perVehicleStats = [];
+
+  // Determine bucketing mode based on date range span
+  const startD = settings.startDate ? new Date(settings.startDate + 'T00:00:00') : null;
+  const endD = settings.endDate ? new Date(settings.endDate + 'T00:00:00') : null;
+  let bucketMode = 'month';
+  if (startD && endD) {
+    const dayDiff = Math.round((endD - startD) / 86400000) + 1;
+    if (dayDiff <= 2) bucketMode = 'day';
+    else if (dayDiff <= 56) bucketMode = 'week';
+    else bucketMode = 'month';
+  }
+
+  // Build a key + label for a trip date, given the chosen bucket mode
+  const monthShort = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function bucketFor(date) {
+    if (bucketMode === 'day') {
+      const key = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+      const label = date.getDate() + ' ' + monthShort[date.getMonth()] + ' ' + date.getFullYear();
+      return { key, label, sortKey: key };
+    }
+    if (bucketMode === 'week') {
+      // Find Monday of the week containing this date
+      const d = new Date(date);
+      d.setHours(0, 0, 0, 0);
+      const dayOfWeek = (d.getDay() + 6) % 7; // Mon=0 ... Sun=6
+      d.setDate(d.getDate() - dayOfWeek);
+      // Compute week index relative to startD's Monday
+      let weekIdx = 1;
+      if (startD) {
+        const start = new Date(startD);
+        start.setHours(0, 0, 0, 0);
+        const startDow = (start.getDay() + 6) % 7;
+        start.setDate(start.getDate() - startDow);
+        weekIdx = Math.floor((d - start) / (7 * 86400000)) + 1;
+      }
+      const key = d.getFullYear() + '-W' + String(weekIdx).padStart(3, '0');
+      const label = 'Week ' + weekIdx + ' - ' + monthShort[d.getMonth()] + ' ' + d.getFullYear();
+      return { key, label, sortKey: d.toISOString() };
+    }
+    // month
+    const key = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+    const label = monthShort[date.getMonth()] + ' ' + date.getFullYear();
+    return { key, label, sortKey: key };
+  }
+
+  devices.forEach(device => {
+    const fuel = device.fuel;
+    if (INVALID_FUEL_TYPES.includes(fuel)) {
+      devicesMissingData.push(device);
+      return;
+    }
+
+    const deviceTrips = tripsByDevice[device.deviceId] || [];
+    const deviceFuel = fuelByDevice[device.deviceId] || [];
+
+    if (deviceTrips.length === 0 && deviceFuel.length === 0) {
+      inactiveDevices.push(device);
+      perVehicleStats.push({
+        name: device.name || device.deviceId,
+        deviceId: device.deviceId,
+        serialNumber: device.serial || '',
+        fuel: device.fuel || '',
+        tripCount: 0,
+        fuelRecordCount: 0,
+        driveHours: 0,
+        idleHours: 0,
+        idleFuelL: 0,
+        idleKwh: 0,
+        note: 'no activity'
+      });
+      return;
+    }
+
+    devicesWithData++;
+
+    let devIdleHours = 0;
+    let devDriveHours = 0;
+    deviceTrips.forEach(t => {
+      const idleSec = parseDuration(t.idlingDuration || t.IdlingDuration);
+      const driveSec = parseDuration(t.drivingDuration || t.DrivingDuration);
+      devIdleHours += idleSec / 3600;
+      devDriveHours += driveSec / 3600;
+
+      const tripDate = new Date(t.start || t.Start || t.startDate);
+      if (!isNaN(tripDate.getTime())) {
+        const b = bucketFor(tripDate);
+        if (!trendData[b.key]) trendData[b.key] = { idle: 0, drive: 0, label: b.label, sortKey: b.sortKey };
+        trendData[b.key].idle += idleSec / 3600;
+        trendData[b.key].drive += driveSec / 3600;
+      }
+    });
+
+    let devIdleFuelL = 0;
+    let devIdleKwh = 0;
+    deviceFuel.forEach(f => {
+      devIdleFuelL += f.TotalIdlingFuelUsedL || f.totalIdlingFuelUsedL || 0;
+      devIdleKwh += f.TotalIdlingEnergyUsedKwh || f.totalIdlingEnergyUsedKwh || 0;
+    });
+
+    const fuelSetting = settings.fuelSettings[fuel] || {};
+    let devCost = 0;
+
+    if (devIdleFuelL > 0 || devIdleKwh > 0) {
+      if (fuel === 'PHEV') {
+        devCost = (devIdleKwh * (fuelSetting.priceKwh || 0.12)) + (devIdleFuelL * (fuelSetting.priceL || 1.45));
+      } else if (['BEV', 'FCEV'].includes(fuel)) {
+        devCost = devIdleKwh * (fuelSetting.price || 0.12);
+      } else {
+        devCost = devIdleFuelL * (fuelSetting.price || 1.30);
+      }
+    } else if (devIdleHours > 0) {
+      const idleRate = fuelSetting.idleRate || FUEL_TYPES[fuel]?.idleRate || 1.0;
+      if (fuel === 'PHEV') {
+        const estKwh = devIdleHours * (fuelSetting.idleKwh || 1.5);
+        const estL = devIdleHours * (fuelSetting.idleL || 0.3);
+        devIdleKwh = estKwh;
+        devIdleFuelL = estL;
+        devCost = (estKwh * (fuelSetting.priceKwh || 0.12)) + (estL * (fuelSetting.priceL || 1.45));
+      } else if (['BEV', 'FCEV'].includes(fuel)) {
+        devIdleKwh = devIdleHours * idleRate;
+        devCost = devIdleKwh * (fuelSetting.price || 0.12);
+      } else {
+        devIdleFuelL = devIdleHours * idleRate;
+        devCost = devIdleFuelL * (fuelSetting.price || 1.30);
+      }
+    }
+
+    totalIdleHours += devIdleHours;
+    totalDriveHours += devDriveHours;
+    totalIdleFuelL += devIdleFuelL;
+    totalIdleKwh += devIdleKwh;
+    totalIdleCost += devCost;
+
+    if (!byFuelType[fuel]) {
+      byFuelType[fuel] = { idleHours: 0, driveHours: 0, fuelL: 0, kwh: 0, cost: 0, count: 0 };
+    }
+    byFuelType[fuel].idleHours += devIdleHours;
+    byFuelType[fuel].driveHours += devDriveHours;
+    byFuelType[fuel].fuelL += devIdleFuelL;
+    byFuelType[fuel].kwh += devIdleKwh;
+    byFuelType[fuel].cost += devCost;
+    byFuelType[fuel].count++;
+
+    perVehicleStats.push({
+      name: device.name || device.deviceId,
+      deviceId: device.deviceId,
+      serialNumber: device.serialNumber || '',
+      fuel: fuel,
+      tripCount: deviceTrips.length,
+      fuelRecordCount: deviceFuel.length,
+      driveHours: devDriveHours,
+      idleHours: devIdleHours,
+      idleFuelL: devIdleFuelL,
+      idleKwh: devIdleKwh,
+      note: ''
+    });
+  });
+
+  const idlePct = (totalIdleHours + totalDriveHours) > 0
+    ? (totalIdleHours / (totalIdleHours + totalDriveHours)) * 100
+    : 0;
+
+  const savings25 = totalIdleCost * 0.25;
+  const scaleFactor = settings.estimatedVehicles > devicesWithData
+    ? settings.estimatedVehicles / devicesWithData
+    : 1;
+  const scaledSavings = savings25 * scaleFactor;
+
+  const trend = Object.keys(trendData)
+    .sort((a, b) => trendData[a].sortKey.localeCompare(trendData[b].sortKey))
+    .map(k => ({
+      label: trendData[k].label,
+      idle: trendData[k].idle,
+      drive: trendData[k].drive
+    }));
+
+  // Vehicle accounting:
+  //   validPowertrainCount = vehicles with a resolved fuel type (the 31 from Fleet Summary)
+  //   devicesWithData      = those with at least one trip or fuel record in the window (29)
+  //   inactiveDevices      = valid powertrain but no activity in window (2)
+  const validPowertrainCount = devicesWithData + inactiveDevices.length;
+
+  return {
+    totalIdleHours,
+    totalDriveHours,
+    totalIdleFuelL,
+    totalIdleKwh,
+    totalIdleCost,
+    idlePct,
+    savings25,
+    scaledSavings,
+    byFuelType,
+    devicesWithData,
+    devicesMissingData,
+    inactiveDevices,
+    validPowertrainCount,
+    trend,
+    bucketMode,
+    settings,
+    perVehicleStats
+  };
+}
+
+function parseDuration(dur) {
+  if (!dur) return 0;
+  if (typeof dur === 'number') return dur;
+  if (typeof dur !== 'string') return 0;
+
+  // ISO 8601 duration format: PT1H30M45S or PT45.5S
+  const isoMatch = dur.match(/^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?$/);
+  if (isoMatch) {
+    const h = parseInt(isoMatch[1] || '0', 10);
+    const m = parseInt(isoMatch[2] || '0', 10);
+    const s = parseFloat(isoMatch[3] || '0');
+    return h * 3600 + m * 60 + s;
+  }
+
+  // TimeSpan format: HH:MM:SS or D.HH:MM:SS or HH:MM:SS.fff
+  const tsMatch = dur.match(/^(?:(\d+)\.)?(\d+):(\d+):(\d+(?:\.\d+)?)$/);
+  if (tsMatch) {
+    const d = parseInt(tsMatch[1] || '0', 10);
+    const h = parseInt(tsMatch[2] || '0', 10);
+    const m = parseInt(tsMatch[3] || '0', 10);
+    const s = parseFloat(tsMatch[4] || '0');
+    return d * 86400 + h * 3600 + m * 60 + s;
+  }
+
+  // Try parsing as numeric seconds string
+  const num = parseFloat(dur);
+  if (!isNaN(num)) return num;
+
+  return 0;
 }
 
 // Fuel types considered invalid (need correction in MyGeotab)
@@ -1889,7 +2698,7 @@ function updateDashboardFromSettings() {
     '<div class="stat-card-sub">Across all groups</div>' +
     '</div>';
 
-  // Add cards only for valid fuel types with vehicles
+  // Add cards for valid fuel types only
   Object.keys(FUEL_TYPES).forEach(key => {
     if (counts[key] > 0 && !INVALID_FUEL_TYPES.includes(key)) {
       const ft = FUEL_TYPES[key];
@@ -1902,6 +2711,17 @@ function updateDashboardFromSettings() {
     }
   });
 
+  // Combined "Unassigned" card for None, Manual, OtherFuel
+  const unassignedCount = INVALID_FUEL_TYPES.reduce((sum, key) => sum + (counts[key] || 0), 0);
+  if (unassignedCount > 0) {
+    html += '<div class="stat-card">' +
+      '<span class="material-symbols-rounded stat-card-icon" style="color:#9e9e9e">help</span>' +
+      '<div class="stat-card-label">Unassigned</div>' +
+      '<div class="stat-card-value">' + unassignedCount + '</div>' +
+      '<div class="stat-card-sub">Needs classification</div>' +
+      '</div>';
+  }
+
   container.innerHTML = html;
 
   // Show/hide unknown vehicles section based on invalid fuel types
@@ -1909,7 +2729,28 @@ function updateDashboardFromSettings() {
 
   // Also update the fuel settings table to show only configured fuel types
   updateFuelSettingsTable(counts);
+
+  // Disable Generate Report button if no valid vehicles exist
+  updateGenerateButtonState();
 }
+
+function updateGenerateButtonState() {
+  const btn = document.getElementById('btn-generate-report');
+  if (!btn) return;
+  const validCount = configuredVehicles.filter(v => !INVALID_FUEL_TYPES.includes(v.fuel)).length;
+  if (validCount === 0) {
+    btn.setAttribute('disabled', 'disabled');
+    btn.classList.add('btn-disabled');
+    btn.title = 'No vehicles with a valid Powertrain or Fuel Type. Assign vehicles to the correct group in MyGeotab to enable report generation.';
+  } else {
+    btn.removeAttribute('disabled');
+    btn.classList.remove('btn-disabled');
+    btn.title = '';
+  }
+}
+
+let unassignedPage = 0;
+const UNASSIGNED_PER_PAGE = 5;
 
 function updateUnknownVehiclesSection(counts) {
   const section = document.getElementById('unassigned-section');
@@ -1922,45 +2763,108 @@ function updateUnknownVehiclesSection(counts) {
   }
 
   section.classList.remove('hidden');
+  unassignedPage = 0;
 
-  // Update the banner text
   const banner = section.querySelector('.banner span:last-child');
   if (banner) {
     banner.innerHTML = '<strong>' + invalidCount + ' vehicle' + (invalidCount !== 1 ? 's' : '') + '</strong> have no valid powertrain or fuel type assigned. They are excluded from cost calculations until corrected in MyGeotab.';
   }
 
-  // Update the table
+  renderUnassignedPage(invalidVehicles);
+}
+
+function renderUnassignedPage(vehicles) {
+  if (!vehicles) vehicles = configuredVehicles.filter(v => INVALID_FUEL_TYPES.includes(v.fuel));
+  const section = document.getElementById('unassigned-section');
   const tbody = section.querySelector('tbody');
-  if (tbody) {
-    tbody.innerHTML = invalidVehicles.map(v => {
-      const ft = FUEL_TYPES[v.fuel];
-      return '<tr>' +
-        '<td data-label="Vehicle Name">' + v.name + '</td>' +
-        '<td data-label="Serial Number" style="font-family:var(--font-mono);font-size:var(--font-size-sm)">' + v.serial + '</td>' +
-        '<td data-label="Device ID" style="font-family:var(--font-mono);font-size:var(--font-size-sm)">' + v.deviceId + '</td>' +
-        '<td data-label="Last Comm" style="color:var(--color-slate);font-size:var(--font-size-sm)">' + v.lastComm + '</td>' +
-        '<td data-label="Action"><button class="btn-action"><span class="material-symbols-rounded">open_in_new</span>Edit in MyGeotab</button></td>' +
-        '</tr>';
-    }).join('');
+  if (!tbody) return;
+
+  const total = vehicles.length;
+  const totalPages = Math.max(1, Math.ceil(total / UNASSIGNED_PER_PAGE));
+  if (unassignedPage >= totalPages) unassignedPage = totalPages - 1;
+  if (unassignedPage < 0) unassignedPage = 0;
+
+  const start = unassignedPage * UNASSIGNED_PER_PAGE;
+  const end = Math.min(start + UNASSIGNED_PER_PAGE, total);
+  const pageVehicles = vehicles.slice(start, end);
+
+  const server = api.session?.serverPath || 'my';
+  const db = api.session?.database || '';
+
+  tbody.innerHTML = pageVehicles.map(v => {
+    const editUrl = api.session?.sessionId
+      ? 'https://' + server + '.geotab.com/' + db + '/#device,id:' + v.deviceId
+      : '#';
+    const target = api.session?.sessionId ? ' target="_blank"' : '';
+    return '<tr>' +
+      '<td data-label="Vehicle Name">' + val(v.name) + '</td>' +
+      '<td data-label="Serial Number" style="font-family:var(--font-mono);font-size:var(--font-size-sm)">' + val(v.serial) + '</td>' +
+      '<td data-label="Device ID" style="font-family:var(--font-mono);font-size:var(--font-size-sm)">' + val(v.deviceId) + '</td>' +
+      '<td data-label="Last Comm" style="color:var(--color-slate);font-size:var(--font-size-sm)">' + val(v.lastComm) + '</td>' +
+      '<td data-label="Action"><a href="' + editUrl + '"' + target + ' class="btn-action"><span class="material-symbols-rounded">open_in_new</span>Edit in MyGeotab</a></td>' +
+      '</tr>';
+  }).join('');
+
+  // Update "Showing x - y of z" header text
+  const infoEl = document.getElementById('unassigned-info-text');
+  if (infoEl) {
+    infoEl.textContent = total === 0
+      ? 'Showing 0 of 0'
+      : 'Showing ' + (start + 1) + ' - ' + end + ' of ' + total;
   }
+
+  // Render pagination buttons (bottom-right) only if more than one page
+  let paginationEl = section.querySelector('.pagination');
+  // Remove any legacy centered pagination from earlier versions
+  const legacyEl = section.querySelector('.tbl-pagination');
+  if (legacyEl) legacyEl.remove();
+
+  if (totalPages <= 1) {
+    if (paginationEl) paginationEl.remove();
+    return;
+  }
+
+  if (!paginationEl) {
+    paginationEl = document.createElement('div');
+    paginationEl.className = 'pagination';
+    section.querySelector('.tbl-wrap').appendChild(paginationEl);
+  }
+
+  paginationEl.innerHTML =
+    '<button class="btn-page" ' + (unassignedPage === 0 ? 'disabled' : '') + ' onclick="unassignedPage--;renderUnassignedPage();">Previous</button>' +
+    '<button class="btn-page" ' + (unassignedPage >= totalPages - 1 ? 'disabled' : '') + ' onclick="unassignedPage++;renderUnassignedPage();">Next</button>';
 }
 
 /* ─── Screen switcher ─── */
 let generatingTimer = null;
-function showScreen(name, btn) {
+function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.mockup-nav button').forEach(b => b.classList.remove('active'));
   document.getElementById('screen-' + name).classList.add('active');
-  if (btn) btn.classList.add('active');
-  if (name === 'report') renderCharts();
-  if (name === 'generating') {
-    clearTimeout(generatingTimer);
-    generatingTimer = setTimeout(() => {
-      if (document.getElementById('screen-generating').classList.contains('active'))
-        demoNotif('report-ok');
-    }, 3200);
+  if (name === 'report') {
+    renderReport();
+    renderCharts();
   }
-  if (name === 'dashboard') updateDashboardFromSettings();
+  if (name === 'generating') {
+    // Re-show spinner overlay each time the generating screen is entered
+    const overlay = document.getElementById('gen-overlay');
+    if (overlay) overlay.classList.remove('hidden');
+    if (api.session?.sessionId) {
+      runReportGeneration();
+    } else {
+      clearTimeout(generatingTimer);
+      generatingTimer = setTimeout(() => {
+        if (document.getElementById('screen-generating').classList.contains('active'))
+          demoNotif('report-ok');
+      }, 3200);
+    }
+  }
+  if (name === 'dashboard') {
+    if (api.session?.sessionId && !fleetLoaded) {
+      loadDashboardFromApi();
+    } else {
+      updateDashboardFromSettings();
+    }
+  }
   const dd = document.getElementById('logout-dropdown');
   if (dd) dd.classList.remove('active');
 }
@@ -1977,10 +2881,11 @@ function updateFuelSettingsTable(counts) {
   const tbody = document.getElementById('fuel-settings-body');
   const currency = document.getElementById('sel-currency')?.value || 'USD';
 
-  const activeFuels = Object.keys(counts).filter(k => counts[k] > 0);
+  // Exclude invalid fuel types (None, Manual, OtherFuel) from settings table
+  const activeFuels = Object.keys(counts).filter(k => counts[k] > 0 && !INVALID_FUEL_TYPES.includes(k));
 
   if (activeFuels.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--color-slate);padding:var(--space-13);">No vehicles configured. Add vehicles in the Settings page.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--color-slate);padding:var(--space-13);">No vehicles with a valid Powertrain or Fuel Type. Assign vehicles to the correct group in MyGeotab to enable cost calculations.</td></tr>';
     return;
   }
 
@@ -1996,12 +2901,12 @@ function updateFuelSettingsTable(counts) {
         '<td data-label="Powertrain">' + ft.powertrain + '</td>' +
         '<td data-label="Vehicles" style="font-family:var(--font-mono)">' + counts[key] + '</td>' +
         '<td data-label="Price / Unit"><div style="display:flex;gap:0.5rem;flex-wrap:wrap;">' +
-          '<div class="if-sm"><input type="number" value="0.12" style="width:50px"><span class="unit">' + currency + '/kWh</span></div>' +
-          '<div class="if-sm"><input type="number" value="1.45" style="width:50px"><span class="unit">' + currency + '/L</span></div>' +
+          '<div class="if-sm"><input type="number" value="0.12"><span class="unit">' + currency + '/kWh</span></div>' +
+          '<div class="if-sm"><input type="number" value="1.45"><span class="unit">' + currency + '/L</span></div>' +
         '</div></td>' +
         '<td data-label="Idle Rate"><div style="display:flex;gap:0.5rem;flex-wrap:wrap;">' +
-          '<div class="if-sm"><input type="number" value="1.5" style="width:50px"><span class="unit">kWh/hr</span></div>' +
-          '<div class="if-sm"><input type="number" value="0.5" style="width:50px"><span class="unit">L/hr</span></div>' +
+          '<div class="if-sm"><input type="number" value="1.5"><span class="unit">kWh/hr</span></div>' +
+          '<div class="if-sm"><input type="number" value="0.3"><span class="unit">L/hr</span></div>' +
         '</div></td>' +
         '</tr>';
     }
@@ -2018,48 +2923,85 @@ function updateFuelSettingsTable(counts) {
   }).join('');
 }
 
-/* ─── Viewport info ─── */
-function updateViewport() {
-  const w = window.innerWidth;
-  let label = 'Desktop';
-  if (w <= 480) label = 'Mobile (≤480px)';
-  else if (w <= 768) label = 'Tablet (≤768px)';
-  else if (w <= 1024) label = 'Laptop (≤1024px)';
-  document.getElementById('viewport-info').textContent = label + ' – ' + w + 'px';
-}
-window.addEventListener('resize', updateViewport);
-updateViewport();
-
 /* ─── Login modal ─── */
-function showLoginModal() {
+async function showLoginModal() {
+  const username = document.getElementById('inp-user').value.trim();
+  const database = document.getElementById('inp-db').value.trim();
+  const password = document.getElementById('inp-pw').value;
+
+  if (!username || !database || !password) {
+    showNotif({
+      type: 'error',
+      icon: 'error',
+      title: 'Missing Credentials',
+      msg: 'Please enter your username, database, and password.',
+      dismissLabel: 'Close'
+    });
+    return;
+  }
+
   document.getElementById('login-modal').classList.add('active');
-  setTimeout(() => {
+
+  try {
+    await api.authenticate({ userName: username, database, password });
     document.getElementById('login-modal').classList.remove('active');
+
+    document.querySelectorAll('.nav-email').forEach(el => el.textContent = username);
+    document.querySelectorAll('.nav-dbid').forEach(el => el.textContent = database);
+
+    fleetLoaded = false;
+    initDatePickers();
+    applyDisplayCurrency();
     demoNotif('login-ok');
-  }, 1800);
+  } catch (err) {
+    document.getElementById('login-modal').classList.remove('active');
+    showNotif({
+      type: 'error',
+      icon: 'error',
+      title: 'Authentication Failed',
+      msg: err.isAuthFailure?.() ? 'Incorrect username, database, or password.' : (err.message || 'Could not connect to MyGeotab.'),
+      dismissLabel: 'Try Again'
+    });
+  }
 }
 
 /* ─── Logout dropdown ─── */
-function toggleLogout() {
-  const dd = document.getElementById('logout-dropdown');
+function toggleLogout(page) {
+  const suffix = page === 'report' ? '-report' : '';
+  const dd = document.getElementById('logout-dropdown' + suffix);
   if (dd) dd.classList.toggle('active');
 }
 function doLogout(e) {
   e.stopPropagation();
-  const dd = document.getElementById('logout-dropdown');
-  if (dd) dd.classList.remove('active');
+  document.querySelectorAll('.logout-dropdown').forEach(dd => dd.classList.remove('active'));
+  api.logout();
+  fleetLoaded = false;
+  reportData = null;
+  configuredVehicles = [];
   demoNotif('logout');
 }
 document.addEventListener('click', e => {
-  const nu = document.getElementById('nav-user');
-  const dd = document.getElementById('logout-dropdown');
-  if (nu && dd && !nu.contains(e.target)) dd.classList.remove('active');
+  document.querySelectorAll('.nav-user').forEach(nu => {
+    if (!nu.contains(e.target)) {
+      const dd = nu.querySelector('.logout-dropdown');
+      if (dd) dd.classList.remove('active');
+    }
+  });
 });
+
+/* ─── Back to Dashboard ─── */
+function goBackToDashboard() {
+  showScreen('dashboard');
+}
 
 /* ─── Notification modal ─── */
 let notifActionCallback = null;
 
+let notifAutoRedirectTimer = null;
+
 function showNotif(cfg) {
+  clearTimeout(notifAutoRedirectTimer);
+
   document.getElementById('notif-icon-wrap').className = 'notif-icon-wrap ni-' + cfg.type;
   document.getElementById('notif-icon').textContent    = cfg.icon;
   document.getElementById('notif-title').textContent   = cfg.title;
@@ -2067,19 +3009,36 @@ function showNotif(cfg) {
 
   const ab = document.getElementById('notif-action-btn');
   const db = document.getElementById('notif-dismiss-btn');
+
   if (cfg.actionLabel) {
     ab.textContent   = cfg.actionLabel;
     ab.style.display = '';
   } else {
     ab.style.display = 'none';
   }
-  db.textContent = cfg.dismissLabel || 'Close';
+
+  if (cfg.hideDismiss) {
+    db.style.display = 'none';
+  } else {
+    db.style.display = '';
+    db.textContent = cfg.dismissLabel || 'Close';
+  }
 
   notifActionCallback = cfg.action || null;
   document.getElementById('notif-overlay').classList.add('active');
+
+  // Auto-redirect after delay if configured
+  if (cfg.autoRedirect && cfg.action) {
+    notifAutoRedirectTimer = setTimeout(() => {
+      const cb = notifActionCallback;
+      closeNotif();
+      if (cb) cb();
+    }, cfg.autoRedirect);
+  }
 }
 
 function closeNotif() {
+  clearTimeout(notifAutoRedirectTimer);
   document.getElementById('notif-overlay').classList.remove('active');
   notifActionCallback = null;
 }
@@ -2091,62 +3050,48 @@ function notifAction() {
 }
 
 function demoNotif(key) {
-  const navBtns = document.querySelectorAll('.mockup-nav button');
-  // navBtns[0]=Settings, [1]=Login, [2]=Dashboard, [3]=Generating, [4]=Report
   const configs = {
     'login-ok': {
       type: 'success', icon: 'check_circle',
       title: 'Signed In Successfully',
-      msg: 'Welcome back, <strong>user@acme.com</strong>. Your fleet data is ready.',
+      msg: 'Welcome back, <strong>' + (api.session?.userName || '') + '</strong>. Your fleet data is ready.',
       actionLabel: 'Go to Dashboard',
-      action: () => showScreen('dashboard', navBtns[2])
+      action: () => showScreen('dashboard'),
+      hideDismiss: true,
+      autoRedirect: 3000
     },
-    'login-fail': {
-      type: 'error', icon: 'error',
-      title: 'Authentication Failed',
-      msg: 'Incorrect username, database, or password. Please check your credentials and try again.',
-      dismissLabel: 'Try Again'
-    },
-    'report-ok': {
-      type: 'success', icon: 'check_circle',
-      title: 'Report Generated',
-      msg: 'Your Idling ROI Report is ready for <strong>' + configuredVehicles.length + ' vehicles</strong> across Apr &ndash; Dec 2025.',
-      actionLabel: 'View Report',
-      action: () => showScreen('report', navBtns[4])
-    },
+    'report-ok': (function() {
+      const r = (typeof reportData !== 'undefined' && reportData) ? reportData : null;
+      const validCount = r ? (r.validPowertrainCount != null ? r.validPowertrainCount : r.devicesWithData) : configuredVehicles.length;
+      const inactiveCount = r && r.inactiveDevices ? r.inactiveDevices.length : 0;
+      const msg = inactiveCount > 0
+        ? 'Your Idling ROI Report is ready for <strong>' + validCount + ' vehicles</strong> (' + r.devicesWithData + ' with activity, ' + inactiveCount + ' without).'
+        : 'Your Idling ROI Report is ready for <strong>' + validCount + ' vehicle' + (validCount === 1 ? '' : 's') + '</strong>.';
+      return {
+        type: 'success', icon: 'check_circle',
+        title: 'Report Generated',
+        msg: msg,
+        actionLabel: 'View Report',
+        action: () => showScreen('report'),
+        hideDismiss: true,
+        autoRedirect: 3000
+      };
+    })(),
     'report-fail': {
       type: 'error', icon: 'error',
       title: 'Report Generation Failed',
       msg: 'Unable to fetch trip data from MyGeotab. Check your internet connection and try again.',
       actionLabel: 'Retry',
-      action: () => showScreen('generating', navBtns[3]),
+      action: () => showScreen('generating'),
       dismissLabel: 'Cancel'
-    },
-    'export-ok': {
-      type: 'success', icon: 'download',
-      title: 'Download Ready',
-      msg: 'Your Idling ROI Report HTML file has been downloaded successfully.',
-      dismissLabel: 'Close'
-    },
-    'export-fail': {
-      type: 'error', icon: 'error',
-      title: 'Export Failed',
-      msg: 'Could not generate the export file. Please try again or use a different browser.',
-      actionLabel: 'Retry',
-      dismissLabel: 'Cancel'
-    },
-    'print-ok': {
-      type: 'success', icon: 'print',
-      title: 'Sent to Printer',
-      msg: 'Your report has been sent to the browser print dialog.',
-      dismissLabel: 'Close'
     },
     'logout': {
       type: 'info', icon: 'logout',
       title: 'Signed Out',
       msg: 'You have been signed out successfully. See you next time.',
-      actionLabel: 'Back to Login',
-      action: () => showScreen('login', navBtns[1])
+      action: () => showScreen('login'),
+      hideDismiss: true,
+      autoRedirect: 3000
     }
   };
   const c = configs[key];
@@ -2179,49 +3124,155 @@ const C = {
 const POWERTRAIN   = ['BEV', 'ICE — Petrol', 'ICE — Diesel', 'HEV', 'PHEV'];
 const PT_COLORS    = [C.bev, C.petrol, C.diesel, C.hev, C.phev];
 
-let chartsBuilt = false;
+function renderReport() {
+  if (!reportData) return;
+
+  const r = reportData;
+  const currency = r.settings?.currency || 'USD';
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  const formatNum = (n, decimals = 0) => n.toLocaleString('en-US', { maximumFractionDigits: decimals });
+
+  document.getElementById('rpt-driving').textContent = formatNum(r.totalDriveHours) + ' hr';
+  document.getElementById('rpt-idle').textContent = formatNum(r.totalIdleHours) + ' hr';
+  document.getElementById('rpt-idle-pct').textContent = r.idlePct.toFixed(1) + '%';
+
+  document.getElementById('rpt-consumed').textContent = formatNum(r.totalIdleFuelL) + ' L';
+  const consumedSub = document.querySelector('#rpt-consumed + .stat-card-sub');
+  if (consumedSub) {
+    consumedSub.innerHTML = '+ <span style="font-family:var(--font-mono);color:var(--color-primary);">' +
+      formatNum(r.totalIdleKwh) + ' kWh</span> while idle';
+  }
+
+  document.getElementById('rpt-cost').textContent = currency + ' ' + formatNum(r.totalIdleCost);
+  document.getElementById('rpt-savings-25').textContent = currency + ' ' + formatNum(r.savings25);
+  document.getElementById('rpt-current-count').textContent = 'Based on ' + r.devicesWithData + ' current vehicles';
+
+  const estVehicles = r.settings?.estimatedVehicles || 0;
+  document.getElementById('rpt-scaled-savings').textContent = currency + ' ' + formatNum(r.scaledSavings);
+  document.getElementById('rpt-scaled-sub').textContent = estVehicles > 0
+    ? 'Projected for ' + estVehicles + ' estimated vehicles'
+    : 'Based on ' + r.devicesWithData + ' current vehicles';
+
+  const startDate = r.settings?.startDate ? new Date(r.settings.startDate + 'T00:00:00') : new Date();
+  const endDate = r.settings?.endDate ? new Date(r.settings.endDate + 'T00:00:00') : new Date();
+  const fmtDate = (d) => d.getDate() + ' ' + monthNames[d.getMonth()] + ' ' + d.getFullYear();
+  const periodFullStr = fmtDate(startDate) + ' – ' + fmtDate(endDate);
+  const startStr = monthNames[startDate.getMonth()] + ' ' + startDate.getFullYear();
+  const endStr = monthNames[endDate.getMonth()] + ' ' + endDate.getFullYear();
+  const database = api.session?.database || '';
+
+  document.getElementById('rpt-period-sub').textContent = startStr + ' – ' + endStr + ' · ' + r.devicesWithData + ' vehicles';
+
+  const now = new Date();
+  const genDate = fmtDate(now);
+  const setMeta = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setMeta('rpt-meta-period', periodFullStr);
+  const validCount = r.validPowertrainCount != null ? r.validPowertrainCount : r.devicesWithData;
+  const inactiveCount = (r.inactiveDevices && r.inactiveDevices.length) || 0;
+  const vehiclesLabel = inactiveCount > 0
+    ? validCount + ' (' + r.devicesWithData + ' with activity, ' + inactiveCount + ' without)'
+    : String(validCount);
+  setMeta('rpt-meta-vehicles', vehiclesLabel);
+  setMeta('rpt-meta-generated', genDate);
+  setMeta('rpt-meta-database', database);
+
+  // Update report navbar identity
+  document.querySelectorAll('#screen-report .nav-email').forEach(el => el.textContent = api.session?.userName || '');
+  document.querySelectorAll('#screen-report .nav-dbid').forEach(el => el.textContent = database);
+}
+
+// Per-vehicle CSV export for cross-checking Tool aggregates against
+// MyGeotab's Trips Summary / Detail reports.
+function downloadPerVehicleCsv() {
+  if (!reportData || !Array.isArray(reportData.perVehicleStats)) {
+    alert('No report data available. Generate a report first.');
+    return;
+  }
+  const rows = reportData.perVehicleStats.slice().sort((a, b) => b.idleHours - a.idleHours);
+  const headers = ['Vehicle Name', 'Serial Number', 'Device ID', 'Fuel', 'Trip Count', 'Fuel Records', 'Driving Hours', 'Idling Hours', 'Idle Fuel (L)', 'Idle Energy (kWh)', 'Note'];
+  const escape = (v) => {
+    const s = v == null ? '' : String(v);
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+  const fmt = (n, d = 4) => (typeof n === 'number' ? n.toFixed(d) : '');
+  const lines = [headers.join(',')];
+  rows.forEach(r => {
+    lines.push([
+      escape(r.name),
+      escape(r.serialNumber),
+      escape(r.deviceId),
+      escape(r.fuel),
+      r.tripCount,
+      r.fuelRecordCount,
+      fmt(r.driveHours),
+      fmt(r.idleHours),
+      fmt(r.idleFuelL),
+      fmt(r.idleKwh),
+      escape(r.note)
+    ].join(','));
+  });
+  // Totals row for quick cross-check against report header
+  const sum = (key) => rows.reduce((acc, r) => acc + (r[key] || 0), 0);
+  lines.push([
+    'TOTAL',
+    '',
+    '',
+    '',
+    sum('tripCount'),
+    sum('fuelRecordCount'),
+    fmt(sum('driveHours')),
+    fmt(sum('idleHours')),
+    fmt(sum('idleFuelL')),
+    fmt(sum('idleKwh')),
+    rows.length + ' vehicles (' + rows.filter(r => r.note === 'no activity').length + ' inactive)'
+  ].join(','));
+  const csv = lines.join('\r\n');
+  const settings = reportData.settings || {};
+  const dbName = (api.session && api.session.database) || 'fleet';
+  const fname = 'idling-roi-diagnostic_' + dbName + '_' + (settings.startDate || 'start') + '_to_' + (settings.endDate || 'end') + '.csv';
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fname;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+let chartInstance = null;
+
 function renderCharts() {
-  if (chartsBuilt) return;
-  chartsBuilt = true;
   Chart.defaults.font.family = "'IBM Plex Sans', sans-serif";
   Chart.defaults.font.size   = 13;
   Chart.defaults.color       = C.slate;
 
-  /* 1. Bar — Idle Duration by Powertrain */
-  new Chart(document.getElementById('chartIdleDuration'), {
-    type: 'bar',
-    data: {
-      labels: POWERTRAIN,
-      datasets: [{
-        label: 'Idle Hours',
-        data: [1240, 5830, 4920, 1960, 882],
-        backgroundColor: PT_COLORS,
-        borderRadius: 6,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { display: false } },
-        y: {
-          beginAtZero: true,
-          title: { display: true, text: 'Hours', color: C.slate },
-          grid: { color: 'rgba(0,0,0,0.05)' },
-        }
-      }
-    }
-  });
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
 
-  /* 2. Line — Monthly Activity Trend (dual-line: Driving + Idle) */
-  new Chart(document.getElementById('chartTrend'), {
+  let labels, driveData, idleData;
+
+  if (reportData && reportData.trend && reportData.trend.length > 0) {
+    labels = reportData.trend.map(b => b.label);
+    driveData = reportData.trend.map(b => Math.round(b.drive));
+    idleData = reportData.trend.map(b => Math.round(b.idle));
+  } else {
+    labels = ['Apr 2025', 'May 2025', 'Jun 2025', 'Jul 2025', 'Aug 2025', 'Sep 2025', 'Oct 2025', 'Nov 2025', 'Dec 2025'];
+    driveData = [3890, 4210, 4050, 3520, 3280, 3780, 4020, 4190, 3148];
+    idleData = [1650, 1820, 1740, 1510, 1380, 1620, 1730, 1800, 1582];
+  }
+
+  chartInstance = new Chart(document.getElementById('chartTrend'), {
     type: 'line',
     data: {
-      labels: ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      labels: labels,
       datasets: [
         {
           label: 'Driving Hours',
-          data: [3890, 4210, 4050, 3520, 3280, 3780, 4020, 4190, 3148],
+          data: driveData,
           borderColor: C.success,
           backgroundColor: 'rgba(19,170,9,0.07)',
           borderWidth: 2.5,
@@ -2232,7 +3283,7 @@ function renderCharts() {
         },
         {
           label: 'Idle Hours',
-          data: [1650, 1820, 1740, 1510, 1380, 1620, 1730, 1800, 1582],
+          data: idleData,
           borderColor: C.error,
           backgroundColor: 'rgba(254,74,63,0.07)',
           borderWidth: 2.5,
@@ -2245,9 +3296,14 @@ function renderCharts() {
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'top', labels: { boxWidth: 12, padding: 14 } } },
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 6, boxHeight: 6, padding: 20, usePointStyle: true, pointStyle: 'circle' } } },
       scales: {
-        x: { grid: { display: false } },
+        x: {
+          type: 'category',
+          offset: true,
+          grid: { display: false },
+          ticks: { autoSkip: true, maxRotation: 0 }
+        },
         y: {
           beginAtZero: false,
           title: { display: true, text: 'Hours', color: C.slate },
@@ -2256,41 +3312,25 @@ function renderCharts() {
       }
     }
   });
-
-  /* 3. Grouped Bar — Cost vs Savings (25% only) */
-  new Chart(document.getElementById('chartCostSavings'), {
-    type: 'bar',
-    data: {
-      labels: POWERTRAIN,
-      datasets: [
-        {
-          label: 'Total Idle Cost (USD)',
-          data: [3200, 8466, 8060, 4200, 2640],
-          backgroundColor: C.error + 'bb',
-          borderRadius: 4,
-        },
-        {
-          label: 'Savings at 25% Reduction (USD)',
-          data: [800, 2117, 2015, 1050, 660],
-          backgroundColor: C.success + 'bb',
-          borderRadius: 4,
-        }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'top', labels: { boxWidth: 12, padding: 14 } } },
-      scales: {
-        x: { grid: { display: false } },
-        y: {
-          beginAtZero: true,
-          title: { display: true, text: 'USD', color: C.slate },
-          grid: { color: 'rgba(0,0,0,0.05)' },
-        }
-      }
-    }
-  });
 }
+
+/* ─── App Initialization ─── */
+(async function init() {
+  // Set default dates using browser timezone as fallback
+  const today = getTodayInTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+  const firstOfMonth = today.slice(0, 8) + '01';
+  document.getElementById('inp-start-date').value = firstOfMonth;
+  document.getElementById('inp-end-date').value = today;
+  updateDateRangeHint();
+
+  document.getElementById('inp-start-date').addEventListener('change', updateDateRangeHint);
+  document.getElementById('inp-end-date').addEventListener('change', updateDateRangeHint);
+
+  const sessionRestored = await bootstrapSession();
+  if (sessionRestored) {
+    showScreen('dashboard');
+  }
+})();
 </script>
 </body>
 </html>
