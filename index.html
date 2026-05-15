@@ -279,7 +279,7 @@ input, button, textarea, select { font-family: inherit; }
    SCREEN 1: LOGIN
    ══════════════════════════════════════════════════════════ */
 .login-wrap {
-  min-height: calc(100vh - 56px);
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -869,7 +869,7 @@ input, button, textarea, select { font-family: inherit; }
 .gen-wrap {
   position: relative;
   overflow: hidden;
-  min-height: calc(100vh - 56px);
+  min-height: 100vh;
 }
 .gen-blur {
   filter: blur(3px);
@@ -879,7 +879,6 @@ input, button, textarea, select { font-family: inherit; }
 .gen-overlay {
   position: fixed;
   inset: 0;
-  top: 56px;
   background: var(--overlay-backdrop);
   display: flex;
   flex-direction: column;
