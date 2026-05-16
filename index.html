@@ -1698,7 +1698,7 @@ input, button, textarea, select { font-family: inherit; }
         </div>
         <div class="stat-card">
           <span class="material-symbols-rounded stat-card-icon" style="color:var(--color-success)">savings</span>
-          <div class="stat-card-label">Annual Savings at 25% Reduction</div>
+          <div class="stat-card-label">Savings at 25% Reduction</div>
           <div class="stat-card-value" style="color:var(--color-success);" id="rpt-savings-25">USD 6,710</div>
           <div class="stat-card-sub" id="rpt-current-count">Based on 243 current vehicles</div>
         </div>
@@ -3155,7 +3155,7 @@ function renderReport() {
     costSub.textContent = r.periodDays + '-day period at configured prices';
   }
   document.getElementById('rpt-savings-25').textContent = currency + ' ' + formatNum(r.savings25);
-  document.getElementById('rpt-current-count').textContent = 'Annualized from ' + r.periodDays + ' days, ' + r.devicesWithData + ' vehicles';
+  document.getElementById('rpt-current-count').textContent = 'Annually based on ' + r.devicesWithData + ' current vehicles';
 
   const estVehicles = r.settings?.estimatedVehicles || 0;
   document.getElementById('rpt-scaled-savings').textContent = currency + ' ' + formatNum(r.scaledSavings);
