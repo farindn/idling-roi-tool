@@ -1698,7 +1698,7 @@ input, button, textarea, select { font-family: inherit; }
         </div>
         <div class="stat-card">
           <span class="material-symbols-rounded stat-card-icon" style="color:var(--color-success)">savings</span>
-          <div class="stat-card-label">Savings at 25% Reduction</div>
+          <div class="stat-card-label">Annual Savings at 25% Reduction</div>
           <div class="stat-card-value" style="color:var(--color-success);" id="rpt-savings-25">USD 6,710</div>
           <div class="stat-card-sub" id="rpt-current-count">Based on 243 current vehicles</div>
         </div>
@@ -2605,7 +2605,11 @@ function computeReport(devices, trips, fuelRecords, settings) {
     ? (totalIdleHours / (totalIdleHours + totalDriveHours)) * 100
     : 0;
 
-  const savings25 = totalIdleCost * 0.25;
+  // Annualize the idling cost based on report period length
+  const periodDays = (startD && endD) ? Math.round((endD - startD) / 86400000) + 1 : 365;
+  const annualizationFactor = periodDays > 0 ? 365 / periodDays : 1;
+  const annualIdleCost = totalIdleCost * annualizationFactor;
+  const savings25 = annualIdleCost * 0.25;
   const scaleFactor = settings.estimatedVehicles > devicesWithData
     ? settings.estimatedVehicles / devicesWithData
     : 1;
@@ -2631,7 +2635,9 @@ function computeReport(devices, trips, fuelRecords, settings) {
     totalIdleFuelL,
     totalIdleKwh,
     totalIdleCost,
+    annualIdleCost,
     idlePct,
+    periodDays,
     savings25,
     scaledSavings,
     byFuelType,
@@ -3144,8 +3150,12 @@ function renderReport() {
   }
 
   document.getElementById('rpt-cost').textContent = currency + ' ' + formatNum(r.totalIdleCost);
+  const costSub = document.querySelector('#rpt-cost + .stat-card-sub');
+  if (costSub) {
+    costSub.textContent = r.periodDays + '-day period at configured prices';
+  }
   document.getElementById('rpt-savings-25').textContent = currency + ' ' + formatNum(r.savings25);
-  document.getElementById('rpt-current-count').textContent = 'Based on ' + r.devicesWithData + ' current vehicles';
+  document.getElementById('rpt-current-count').textContent = 'Annualized from ' + r.periodDays + ' days, ' + r.devicesWithData + ' vehicles';
 
   const estVehicles = r.settings?.estimatedVehicles || 0;
   document.getElementById('rpt-scaled-savings').textContent = currency + ' ' + formatNum(r.scaledSavings);
