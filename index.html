@@ -1035,6 +1035,56 @@ input, button, textarea, select { font-family: inherit; }
 /* Chart containers */
 .chart-wrap { position: relative; height: 260px; }
 
+/* Benchmark strip — inside .sc.cost-overview, below the stat-card grid */
+.benchmark-strip {
+  margin-top: var(--space-12);
+  padding-top: var(--space-11);
+  border-top: var(--border-width) solid var(--color-border-light);
+  display: flex;
+  align-items: center;
+  gap: var(--space-14);
+  flex-wrap: wrap;
+}
+.benchmark-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-slate);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+.benchmark-title .material-symbols-rounded { font-size: 15px; }
+.benchmark-tiers {
+  display: flex;
+  align-items: center;
+  gap: var(--space-13);
+  flex-wrap: wrap;
+}
+.bench-tier {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  font-size: var(--font-size-sm);
+  color: var(--color-slate);
+}
+.bench-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+.bench-val {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+  margin-left: var(--space-3);
+}
+.bench-tier-you .bench-label { font-weight: var(--font-weight-semibold); color: var(--color-primary); }
+
 /* ══════════════════════════════════════════════════════════
    RESPONSIVE
    ══════════════════════════════════════════════════════════ */
@@ -1631,13 +1681,13 @@ input, button, textarea, select { font-family: inherit; }
       </div>
     </div>
 
-    <!-- Monthly Activity Trend (moved to top per review with Ezanne and Neal) -->
+    <!-- Activity Trend (dynamic bucketing: daily/weekly/monthly) -->
     <div class="sc">
       <div class="sc-hd">
-        <div class="sc-ico"><span class="material-symbols-rounded">show_chart</span></div>
+        <div class="sc-ico"><span class="material-symbols-rounded">bar_chart</span></div>
         <div>
-          <div class="sc-ttl">Monthly Activity Trend</div>
-          <div class="sc-sub">Driving and idle hours per month across all powertrains</div>
+          <div class="sc-ttl">Activity Trend</div>
+          <div class="sc-sub" id="rpt-trend-sub">Driving and idle hours across all powertrains</div>
         </div>
       </div>
       <div class="chart-wrap">
@@ -1651,10 +1701,10 @@ input, button, textarea, select { font-family: inherit; }
         <div class="sc-ico"><span class="material-symbols-rounded">route</span></div>
         <div>
           <div class="sc-ttl">Trip Activity</div>
-          <div class="sc-sub">Driving and idling time breakdown across the analysis period</div>
+          <div class="sc-sub">Driving, idling, and fuel consumption across the analysis period</div>
         </div>
       </div>
-      <div class="g3">
+      <div class="g4">
         <div class="stat-card">
           <span class="material-symbols-rounded stat-card-icon">schedule</span>
           <div class="stat-card-label">Total Driving Duration</div>
@@ -1662,16 +1712,22 @@ input, button, textarea, select { font-family: inherit; }
           <div class="stat-card-sub">Vehicle in motion</div>
         </div>
         <div class="stat-card">
-          <span class="material-symbols-rounded stat-card-icon">timer</span>
+          <span class="material-symbols-rounded stat-card-icon" id="rpt-idle-icon">timer</span>
           <div class="stat-card-label">Total Idle Duration</div>
           <div class="stat-card-value" id="rpt-idle">14,832 hr</div>
           <div class="stat-card-sub">Engine on, speed = 0</div>
         </div>
         <div class="stat-card">
-          <span class="material-symbols-rounded stat-card-icon" style="color:var(--color-error)">percent</span>
+          <span class="material-symbols-rounded stat-card-icon" id="rpt-idle-pct-icon">percent</span>
           <div class="stat-card-label">Idling %</div>
-          <div class="stat-card-value" style="color:var(--color-error);" id="rpt-idle-pct">30.3%</div>
+          <div class="stat-card-value" id="rpt-idle-pct">30.3%</div>
           <div class="stat-card-sub">idle / (driving + idle)</div>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon">local_gas_station</span>
+          <div class="stat-card-label">Fuel &amp; Energy Consumed</div>
+          <div class="stat-card-value" id="rpt-consumed">18,450 L</div>
+          <div class="stat-card-sub" id="rpt-consumed-sub">+ <span style="font-family:var(--font-mono);color:var(--color-primary);">2,840 kWh</span> while idle</div>
         </div>
       </div>
     </div>
@@ -1687,28 +1743,53 @@ input, button, textarea, select { font-family: inherit; }
       </div>
       <div class="g4">
         <div class="stat-card">
-          <span class="material-symbols-rounded stat-card-icon">local_gas_station</span>
-          <div class="stat-card-label">Fuel &amp; Energy Consumed</div>
-          <div class="stat-card-value" id="rpt-consumed">18,450 L</div>
-          <div class="stat-card-sub">+ <span style="font-family:var(--font-mono);color:var(--color-primary);">2,840 kWh</span> while idle</div>
-        </div>
-        <div class="stat-card">
           <span class="material-symbols-rounded stat-card-icon" style="color:var(--color-error)">payments</span>
           <div class="stat-card-label">Total Idle Cost</div>
           <div class="stat-card-value" style="color:var(--color-error);" id="rpt-cost">USD 26,841</div>
-          <div class="stat-card-sub">At configured prices</div>
+          <div class="stat-card-sub" id="rpt-cost-sub">At configured prices</div>
         </div>
         <div class="stat-card">
           <span class="material-symbols-rounded stat-card-icon" style="color:var(--color-success)">savings</span>
           <div class="stat-card-label">Savings at 25% Reduction</div>
-          <div class="stat-card-value" style="color:var(--color-success);" id="rpt-savings-25">USD 6,710</div>
-          <div class="stat-card-sub" id="rpt-current-count">Based on 243 current vehicles</div>
+          <div class="stat-card-value" style="color:var(--color-success);" id="rpt-savings25">USD 6,710</div>
+          <div class="stat-card-sub" id="rpt-savings25-sub">Annually based on 243 vehicles<br>30.3% → 22.7%</div>
         </div>
         <div class="stat-card">
-          <span class="material-symbols-rounded stat-card-icon" style="color:var(--color-accent)">trending_up</span>
-          <div class="stat-card-label">Scaled Annual Savings</div>
-          <div class="stat-card-value" style="color:var(--color-accent);" id="rpt-scaled-savings">USD 2,761</div>
-          <div class="stat-card-sub" id="rpt-scaled-sub">Projected for 100 estimated vehicles</div>
+          <span class="material-symbols-rounded stat-card-icon" id="rpt-card3-icon" style="color:var(--color-accent)">trending_up</span>
+          <div class="stat-card-label" id="rpt-card3-label">Scaled Annual Savings</div>
+          <div class="stat-card-value" id="rpt-card3-value" style="color:var(--color-accent);">USD 8,388</div>
+          <div class="stat-card-sub" id="rpt-card3-sub">Projected for 100 vehicles<br>At 25% reduction</div>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon" id="rpt-card4-icon" style="color:var(--color-accent)">flag</span>
+          <div class="stat-card-label" id="rpt-card4-label">Savings to Reach 10%</div>
+          <div class="stat-card-value" id="rpt-card4-value" style="color:var(--color-accent);">USD 2,761</div>
+          <div class="stat-card-sub" id="rpt-card4-sub">Projected for 243 vehicles<br>30.3% → 10%</div>
+        </div>
+      </div>
+
+      <!-- Fleet Idling Benchmark reference -->
+      <div class="benchmark-strip">
+        <div class="benchmark-title">
+          <span class="material-symbols-rounded">info</span>
+          Fleet Idling Benchmark
+        </div>
+        <div class="benchmark-tiers">
+          <div class="bench-tier">
+            <span class="bench-dot" style="background:var(--color-success)"></span>
+            <span class="bench-label">Top Quartile</span>
+            <span class="bench-val">&le; 10%</span>
+          </div>
+          <div class="bench-tier">
+            <span class="bench-dot" style="background:var(--color-accent)"></span>
+            <span class="bench-label">Industry Average</span>
+            <span class="bench-val">~20%</span>
+          </div>
+          <div class="bench-tier bench-tier-you">
+            <span class="bench-dot" id="bench-your-dot"></span>
+            <span class="bench-label">Your Fleet</span>
+            <span class="bench-val" id="bench-your-val">&mdash;</span>
+          </div>
         </div>
       </div>
     </div>
@@ -2452,8 +2533,8 @@ function computeReport(devices, trips, fuelRecords, settings) {
   let bucketMode = 'month';
   if (startD && endD) {
     const dayDiff = Math.round((endD - startD) / 86400000) + 1;
-    if (dayDiff <= 2) bucketMode = 'day';
-    else if (dayDiff <= 56) bucketMode = 'week';
+    if (dayDiff <= 14) bucketMode = 'day';
+    else if (dayDiff <= 90) bucketMode = 'week';
     else bucketMode = 'month';
   }
 
@@ -2471,18 +2552,15 @@ function computeReport(devices, trips, fuelRecords, settings) {
       d.setHours(0, 0, 0, 0);
       const dayOfWeek = (d.getDay() + 6) % 7; // Mon=0 ... Sun=6
       d.setDate(d.getDate() - dayOfWeek);
-      // Compute week index relative to startD's Monday
-      let weekIdx = 1;
-      if (startD) {
-        const start = new Date(startD);
-        start.setHours(0, 0, 0, 0);
-        const startDow = (start.getDay() + 6) % 7;
-        start.setDate(start.getDate() - startDow);
-        weekIdx = Math.floor((d - start) / (7 * 86400000)) + 1;
-      }
-      const key = d.getFullYear() + '-W' + String(weekIdx).padStart(3, '0');
-      const label = 'Week ' + weekIdx + ' - ' + monthShort[d.getMonth()] + ' ' + d.getFullYear();
-      return { key, label, sortKey: d.toISOString() };
+      // Week-of-month: which Monday of d's month is this?
+      // Find the first Monday in d's month, then count weeks from it.
+      const firstOfMonth = new Date(d.getFullYear(), d.getMonth(), 1);
+      const firstMonDow = (firstOfMonth.getDay() + 6) % 7; // Mon=0
+      const firstMondayDate = firstMonDow === 0 ? 1 : 1 + (7 - firstMonDow);
+      const weekOfMonth = Math.floor((d.getDate() - firstMondayDate) / 7) + 1;
+      const key = d.toISOString().slice(0, 10); // YYYY-MM-DD of Monday — unique per week
+      const label = 'Week ' + weekOfMonth + ' - ' + monthShort[d.getMonth()] + ' ' + d.getFullYear();
+      return { key, label, sortKey: key };
     }
     // month
     const key = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
@@ -2611,11 +2689,16 @@ function computeReport(devices, trips, fuelRecords, settings) {
   const periodDays = (startD && endD) ? Math.round((endD - startD) / 86400000) + 1 : 365;
   const annualizationFactor = periodDays > 0 ? 365 / periodDays : 1;
   const annualIdleCost = totalIdleCost * annualizationFactor;
-  const savings25 = annualIdleCost * 0.25;
   const scaleFactor = settings.estimatedVehicles > devicesWithData
     ? settings.estimatedVehicles / devicesWithData
     : 1;
-  const scaledSavings = savings25 * scaleFactor;
+  const savings25 = annualIdleCost * 0.25;
+  const idlePctAfter25 = idlePct * 0.75;
+  const idealSavings = idlePct > 10 ? annualIdleCost * (1 - 10 / idlePct) : 0;
+  const industryAvgSavings = idlePct > 0 && idlePct < 20 ? annualIdleCost * (20 / idlePct - 1) : 0;
+  const scaledSavings25 = savings25 * scaleFactor;
+  const scaledIdealSavings = idealSavings * scaleFactor;
+  const scaledIndustryAvgSavings = industryAvgSavings * scaleFactor;
 
   const trend = Object.keys(trendData)
     .sort((a, b) => trendData[a].sortKey.localeCompare(trendData[b].sortKey))
@@ -2641,7 +2724,13 @@ function computeReport(devices, trips, fuelRecords, settings) {
     idlePct,
     periodDays,
     savings25,
-    scaledSavings,
+    idlePctAfter25,
+    idealSavings,
+    industryAvgSavings,
+    scaledSavings25,
+    scaledIdealSavings,
+    scaledIndustryAvgSavings,
+    scaleFactor,
     byFuelType,
     devicesWithData,
     devicesMissingData,
@@ -3144,26 +3233,81 @@ function renderReport() {
   document.getElementById('rpt-idle').textContent = formatNum(r.totalIdleHours) + ' hr';
   document.getElementById('rpt-idle-pct').textContent = r.idlePct.toFixed(1) + '%';
 
+  // Conditional coloring on Trip Activity idle cards based on 10% benchmark
+  const aboveBenchmark = r.idlePct > 10;
+  const benchColor = aboveBenchmark ? 'var(--color-error)' : 'var(--color-success)';
+  document.getElementById('rpt-idle').style.color = benchColor;
+  document.getElementById('rpt-idle-icon').style.color = benchColor;
+  document.getElementById('rpt-idle-pct').style.color = benchColor;
+  document.getElementById('rpt-idle-pct-icon').style.color = benchColor;
+
   document.getElementById('rpt-consumed').textContent = formatNum(r.totalIdleFuelL) + ' L';
-  const consumedSub = document.querySelector('#rpt-consumed + .stat-card-sub');
-  if (consumedSub) {
-    consumedSub.innerHTML = '+ <span style="font-family:var(--font-mono);color:var(--color-primary);">' +
-      formatNum(r.totalIdleKwh) + ' kWh</span> while idle';
-  }
+  document.getElementById('rpt-consumed-sub').innerHTML =
+    '+ <span style="font-family:var(--font-mono);color:var(--color-primary);">' +
+    formatNum(r.totalIdleKwh) + ' kWh</span> while idle';
 
   document.getElementById('rpt-cost').textContent = currency + ' ' + formatNum(r.totalIdleCost);
-  const costSub = document.querySelector('#rpt-cost + .stat-card-sub');
-  if (costSub) {
-    costSub.textContent = r.periodDays + '-day period at configured prices';
-  }
-  document.getElementById('rpt-savings-25').textContent = currency + ' ' + formatNum(r.savings25);
-  document.getElementById('rpt-current-count').textContent = 'Annually based on ' + r.devicesWithData + ' current vehicles';
+  document.getElementById('rpt-cost-sub').textContent = r.periodDays + '-day period at configured prices';
 
+  // Card 2: Savings at 25% Reduction — unscaled, based on current vehicles in report
+  document.getElementById('rpt-savings25').textContent = currency + ' ' + formatNum(r.savings25);
+  document.getElementById('rpt-savings25-sub').innerHTML =
+    'Annually based on ' + r.devicesWithData + ' vehicles<br>' +
+    '<span style="font-family:var(--font-mono);">' + r.idlePct.toFixed(1) + '% &rarr; ' + r.idlePctAfter25.toFixed(1) + '%</span>';
+
+  const isScaled = r.scaleFactor > 1;
   const estVehicles = r.settings?.estimatedVehicles || 0;
-  document.getElementById('rpt-scaled-savings').textContent = currency + ' ' + formatNum(r.scaledSavings);
-  document.getElementById('rpt-scaled-sub').textContent = estVehicles > 0
-    ? 'Projected for ' + estVehicles + ' estimated vehicles'
-    : 'Based on ' + r.devicesWithData + ' current vehicles';
+  const scaledSuffix = isScaled
+    ? 'Projected for ' + estVehicles + ' vehicles'
+    : r.devicesWithData + ' vehicles';
+
+  // Card 3: Scaled Annual Savings — always 25% reduction × fleet scaling factor
+  const c3Icon  = document.getElementById('rpt-card3-icon');
+  const c3Label = document.getElementById('rpt-card3-label');
+  const c3Value = document.getElementById('rpt-card3-value');
+  const c3Sub   = document.getElementById('rpt-card3-sub');
+  c3Icon.textContent = 'trending_up';
+  c3Icon.style.color = 'var(--color-accent)';
+  c3Label.textContent = 'Scaled Annual Savings';
+  c3Value.textContent = currency + ' ' + formatNum(r.scaledSavings25);
+  c3Value.style.color = 'var(--color-accent)';
+  c3Sub.innerHTML = scaledSuffix + '<br>At 25% reduction';
+
+  // Card 4: Savings to Reach 10% (above benchmark) or Top Quartile recognition (below)
+  const c4Icon  = document.getElementById('rpt-card4-icon');
+  const c4Label = document.getElementById('rpt-card4-label');
+  const c4Value = document.getElementById('rpt-card4-value');
+  const c4Sub   = document.getElementById('rpt-card4-sub');
+
+  if (aboveBenchmark) {
+    c4Icon.textContent = 'flag';
+    c4Icon.style.color = 'var(--color-accent)';
+    c4Label.textContent = 'Savings to Reach 10%';
+    c4Value.textContent = currency + ' ' + formatNum(r.scaledIdealSavings);
+    c4Value.style.color = 'var(--color-accent)';
+    c4Sub.innerHTML = scaledSuffix + '<br>' +
+      '<span style="font-family:var(--font-mono);">' + r.idlePct.toFixed(1) + '% &rarr; 10%</span>';
+  } else {
+    c4Icon.textContent = 'emoji_events';
+    c4Icon.style.color = 'var(--color-success)';
+    c4Label.textContent = 'Top Quartile Fleet';
+    c4Value.textContent = r.idlePct.toFixed(1) + '%';
+    c4Value.style.color = 'var(--color-success)';
+    c4Sub.textContent = 'Already below the 10% benchmark';
+  }
+
+  // Benchmark strip — set "Your Fleet" dot color and value
+  const yourDot = document.getElementById('bench-your-dot');
+  const yourVal = document.getElementById('bench-your-val');
+  if (yourDot) yourDot.style.background = aboveBenchmark ? 'var(--color-error)' : 'var(--color-success)';
+  if (yourVal) yourVal.textContent = r.idlePct.toFixed(1) + '%';
+
+  // Trend chart subtitle reflects bucketing mode
+  const trendSub = document.getElementById('rpt-trend-sub');
+  if (trendSub) {
+    const bucketLabel = r.bucketMode === 'day' ? 'Daily' : r.bucketMode === 'week' ? 'Weekly' : 'Monthly';
+    trendSub.textContent = bucketLabel + ' driving and idle hours across all powertrains';
+  }
 
   const startDate = r.settings?.startDate ? new Date(r.settings.startDate + 'T00:00:00') : new Date();
   const endDate = r.settings?.endDate ? new Date(r.settings.endDate + 'T00:00:00') : new Date();
@@ -3277,46 +3421,38 @@ function renderCharts() {
   }
 
   chartInstance = new Chart(document.getElementById('chartTrend'), {
-    type: 'line',
+    type: 'bar',
     data: {
       labels: labels,
       datasets: [
         {
           label: 'Driving Hours',
           data: driveData,
-          borderColor: C.success,
-          backgroundColor: 'rgba(19,170,9,0.07)',
-          borderWidth: 2.5,
-          pointRadius: 4,
-          pointBackgroundColor: C.success,
-          fill: false,
-          tension: 0.35,
+          backgroundColor: 'rgba(19,170,9,0.75)',
+          borderRadius: 2,
+          stack: 'activity',
         },
         {
           label: 'Idle Hours',
           data: idleData,
-          borderColor: C.error,
-          backgroundColor: 'rgba(254,74,63,0.07)',
-          borderWidth: 2.5,
-          pointRadius: 4,
-          pointBackgroundColor: C.error,
-          fill: false,
-          tension: 0.35,
+          backgroundColor: 'rgba(254,74,63,0.80)',
+          borderRadius: 2,
+          stack: 'activity',
         }
       ]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { boxWidth: 6, boxHeight: 6, padding: 20, usePointStyle: true, pointStyle: 'circle' } } },
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, padding: 20, usePointStyle: true, pointStyle: 'rect' } } },
       scales: {
         x: {
-          type: 'category',
-          offset: true,
+          stacked: true,
           grid: { display: false },
           ticks: { autoSkip: true, maxRotation: 0 }
         },
         y: {
-          beginAtZero: false,
+          stacked: true,
+          beginAtZero: true,
           title: { display: true, text: 'Hours', color: C.slate },
           grid: { color: 'rgba(0,0,0,0.05)' },
         }
