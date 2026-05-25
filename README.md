@@ -85,6 +85,45 @@ For detailed instructions on each screen and an explanation of all calculations,
 
 ---
 
+## Add-In Installation
+
+For partners or customers who prefer a native MyGeotab experience, the tool is also available as a ZIP-based add-in. No login screen — MyGeotab passes credentials automatically.
+
+### Step 1 — Download the add-in
+
+Download `addin/releases/idling-roi-tool.zip` from this repository.
+
+### Step 2 — Upload to MyGeotab
+
+1. Sign in to MyGeotab as an **Administrator**
+2. Go to **Administration → System → System Settings → Add-Ins**
+3. Click **New Add-In**
+4. Click the upload button and select `idling-roi-tool.zip`
+5. Click **OK** → **Save**
+6. Refresh the page (Ctrl+R / Cmd+R)
+
+The tool now appears under **Reports → Idling ROI Tool** in the left-hand navigation.
+
+### Updating to a new version
+
+1. Download the latest `idling-roi-tool.zip` from `addin/releases/`
+2. Go to **Administration → System → System Settings → Add-Ins**
+3. Click the existing **Idling ROI Tool** entry → **Remove**
+4. Click **New Add-In**, upload the new ZIP → **OK** → **Save** → Refresh
+
+### Rebuilding the ZIP
+
+If you need to build the ZIP from source (after modifying `addin/index.html`):
+
+```
+cd addin
+python build_zip.py
+```
+
+Requires Python 3.6+. No external dependencies.
+
+---
+
 ## Known Limitations
 
 - **Trip boundary variance** — the tool may include slightly more boundary trips than MyGeotab's built-in reports, resulting in a typical 1–2% variance. Use the Diagnostic CSV to investigate discrepancies.
