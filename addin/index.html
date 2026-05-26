@@ -1085,6 +1085,7 @@ input, button, textarea, select { font-family: inherit; }
 </head>
 <body>
 
+<div id="Idling ROI Tool" style="display:none">
 <div class="screen-container">
 
 <!-- ════════════════════════════════════════════════════════
@@ -3281,42 +3282,52 @@ function renderCharts() {
 })();
 
 // ─── MyGeotab Add-In Bootstrap ─────────────────────────────────────────────
-geotab.addin.idlingRoiTool = function() {
+geotab.addin["Idling ROI Tool"] = function() {
   return {
     initialize: function(addinApi, state, callback) {
-      addinApi.getSession(function(session) {
-        const serverPath = (session.domain || 'my.geotab.com')
-          .replace('https://', '')
-          .replace('.geotab.com', '');
-
-        api.session = {
-          userName:        session.userName,
-          database:        session.database,
-          sessionId:       session.sessionId,
-          serverPath:      serverPath,
-          password:        null,
-          timestamp:       Date.now(),
-          timeZoneId:      'UTC',
-          displayCurrency: null
-        };
-
-        addinApi.call('Get', {
-          typeName:     'User',
-          search:       { name: session.userName },
-          resultsLimit: 1
-        }, function(users) {
-          if (users[0]?.timeZoneId)      api.session.timeZoneId      = users[0].timeZoneId;
-          if (users[0]?.displayCurrency) api.session.displayCurrency = users[0].displayCurrency;
-          _bootAddin(session.userName, session.database);
-          callback();
-        }, function() {
-          _bootAddin(session.userName, session.database);
-          callback();
+      // Wire our custom api.call to MyGeotab's pre-authenticated api object
+      api.call = function(method, params) {
+        return new Promise(function(resolve, reject) {
+          addinApi.call(method, params, resolve, reject);
         });
+      };
+
+      api.session = {
+        userName:        '',
+        database:        state.database || '',
+        sessionId:       null,
+        serverPath:      null,
+        password:        null,
+        timestamp:       Date.now(),
+        timeZoneId:      'UTC',
+        displayCurrency: null
+      };
+
+      addinApi.call('Get', {
+        typeName:     'User',
+        search:       {},
+        resultsLimit: 1
+      }, function(users) {
+        if (users && users[0]) {
+          api.session.userName        = users[0].name           || '';
+          api.session.timeZoneId      = users[0].timeZoneId     || 'UTC';
+          api.session.displayCurrency = users[0].displayCurrency || null;
+        }
+        _bootAddin(api.session.userName, api.session.database);
+        callback();
+      }, function() {
+        _bootAddin('', api.session.database);
+        callback();
       });
     },
-    focus: function() {},
-    blur:  function() {}
+
+    focus: function(addinApi, state) {
+      document.getElementById('Idling ROI Tool').style.display = '';
+    },
+
+    blur: function() {
+      document.getElementById('Idling ROI Tool').style.display = 'none';
+    }
   };
 };
 
@@ -3329,5 +3340,6 @@ function _bootAddin(userName, database) {
   showScreen('dashboard');
 }
 </script>
+</div><!-- /#Idling ROI Tool -->
 </body>
 </html>
