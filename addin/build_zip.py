@@ -53,7 +53,12 @@ def fetch(url, headers=None):
 
 
 def get_material_symbols():
-    """Download Material Symbols woff2; return (bytes, font-face CSS for local ref)."""
+    """Download Material Symbols woff2; return (bytes, full_css_with_local_ref).
+
+    Google Fonts returns both the @font-face rule AND the .material-symbols-rounded
+    class definition (font-family, font-feature-settings: 'liga', etc.). We use the
+    full CSS response but replace the remote woff2 URL with a local file reference.
+    """
     print("  Fetching Material Symbols CSS from Google Fonts...")
     css = fetch(MATERIAL_SYMBOLS_CSS_URL).decode("utf-8")
 
@@ -66,16 +71,9 @@ def get_material_symbols():
     woff2_bytes = fetch(woff2_url)
     print(f"  Font size: {len(woff2_bytes) / 1024:.0f} KB")
 
-    font_face = (
-        "@font-face {\n"
-        "  font-family: 'Material Symbols Rounded';\n"
-        "  font-style: normal;\n"
-        "  font-weight: 100 700;\n"
-        "  font-display: block;\n"
-        "  src: url('material-symbols-rounded.woff2') format('woff2');\n"
-        "}"
-    )
-    return woff2_bytes, font_face
+    # Use the full Google Fonts CSS (class + @font-face) with local woff2 reference
+    css_local = css.replace(woff2_url, "material-symbols-rounded.woff2")
+    return woff2_bytes, css_local
 
 
 def patch_html(html):

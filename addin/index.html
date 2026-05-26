@@ -3295,7 +3295,7 @@ geotab.addin["Idling ROI Tool"] = function() {
       api.session = {
         userName:        '',
         database:        state.database || '',
-        sessionId:       null,
+        sessionId:       'addin',   // truthy sentinel — auth is handled by addinApi
         serverPath:      null,
         password:        null,
         timestamp:       Date.now(),
@@ -3338,6 +3338,7 @@ function _bootAddin(userName, database) {
   initDatePickers();
   applyDisplayCurrency();
   showScreen('dashboard');
+  loadDashboardFromApi();
 }
 </script>
 </div><!-- /#Idling ROI Tool -->
