@@ -808,6 +808,7 @@ input, button, textarea, select { font-family: inherit; }
   gap: var(--space-13);
   z-index: 1000;
 }
+@keyframes rotate { to { transform: rotate(360deg); } }
 .gen-spinner {
   width: 48px;
   height: 48px;
@@ -3346,33 +3347,58 @@ geotab.addin["Idling ROI Tool"] = function() {
         });
       };
 
+      // Derive database: state.database first, fall back to URL path segment
+      var dbName = (state && state.database)
+        || window.location.pathname.split('/').filter(Boolean)[0]
+        || '';
+
       api.session = {
         userName:        '',
-        database:        state.database || '',
+        database:        dbName,
         sessionId:       'addin',   // truthy sentinel — auth is handled by addinApi
-        serverPath:      null,
+        serverPath:      'my',
         password:        null,
         timestamp:       Date.now(),
         timeZoneId:      'UTC',
         displayCurrency: null
       };
 
-      addinApi.call('Get', {
-        typeName:     'User',
-        search:       {},
-        resultsLimit: 1
-      }, function(users) {
-        if (users && users[0]) {
-          api.session.userName        = users[0].name           || '';
-          api.session.timeZoneId      = users[0].timeZoneId     || 'UTC';
-          api.session.displayCurrency = users[0].displayCurrency || null;
-        }
+      function onUserResolved(userName, timeZoneId, displayCurrency) {
+        api.session.userName        = userName        || '';
+        api.session.timeZoneId      = timeZoneId      || 'UTC';
+        api.session.displayCurrency = displayCurrency || null;
         _bootAddin(api.session.userName, api.session.database);
         callback();
-      }, function() {
-        _bootAddin('', api.session.database);
-        callback();
-      });
+      }
+
+      function fetchUserDetails(name) {
+        addinApi.call('Get', {
+          typeName:     'User',
+          search:       name ? { name: name } : {},
+          resultsLimit: 1
+        }, function(users) {
+          var u = users && users[0];
+          onUserResolved(u && (u.name || u.userName), u && u.timeZoneId, u && u.displayCurrency);
+        }, function() {
+          onUserResolved('', null, null);
+        });
+      }
+
+      // Prefer addinApi.getSession() (returns the actual logged-in user's credentials)
+      if (typeof addinApi.getSession === 'function') {
+        try {
+          addinApi.getSession(function(session) {
+            var sessionUser = session && (session.userName || (session.credentials && session.credentials.username));
+            // Update database from session if available
+            if (session && session.database) api.session.database = session.database;
+            fetchUserDetails(sessionUser || null);
+          });
+        } catch (e) {
+          fetchUserDetails(null);
+        }
+      } else {
+        fetchUserDetails(null);
+      }
     },
 
     focus: function(addinApi, state) {

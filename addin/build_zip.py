@@ -8,14 +8,15 @@ Output: releases/idling-roi-tool.zip
 MyGeotab's add-in context blocks inline <style> tags (CSP) and external CDN
 requests, so:
   - The inline CSS is extracted into main.css (linked stylesheet)
-  - Chart.js and the Material Symbols font are downloaded and bundled
+  - IBM Plex Sans/Mono, Material Symbols, and Chart.js are downloaded and bundled
 
 ZIP structure:
   configuration.json
   Idling ROI Tool/
     index.html                         (patched — <style> -> <link>, local refs)
-    main.css                           (extracted CSS + @font-face)
+    main.css                           (extracted CSS + all @font-face rules)
     chart.js                           (bundled from CDN)
+    ibm-plex-{n}.woff2                 (IBM Plex Sans 400/600, Mono 400/500)
     material-symbols-rounded.woff2     (bundled from Google Fonts)
     geotab-logo(full-colour-rgb).png
 """
@@ -37,6 +38,13 @@ CHARTJS_URL = "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js
 MATERIAL_SYMBOLS_CSS_URL = (
     "https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:"
     "opsz,wght,FILL,GRAD@24,400,0,0&display=block"
+)
+
+IBM_PLEX_CSS_URL = (
+    "https://fonts.googleapis.com/css2?"
+    "family=IBM+Plex+Sans:ital,wght@0,400;0,600"
+    "&family=IBM+Plex+Mono:wght@400;500"
+    "&display=swap"
 )
 
 BROWSER_UA = (
@@ -74,6 +82,26 @@ def get_material_symbols():
     # Use the full Google Fonts CSS (class + @font-face) with local woff2 reference
     css_local = css.replace(woff2_url, "material-symbols-rounded.woff2")
     return woff2_bytes, css_local
+
+
+def get_ibm_fonts():
+    """Download IBM Plex Sans (400, 600) and Mono (400, 500).
+    Returns (files_dict, css_with_local_refs) where files_dict maps filename -> bytes.
+    """
+    print("  Fetching IBM Plex Sans/Mono CSS from Google Fonts...")
+    css = fetch(IBM_PLEX_CSS_URL).decode("utf-8")
+
+    woff2_urls = re.findall(r"url\((https://fonts\.gstatic\.com/[^)]+\.woff2)\)", css)
+    files = {}
+    for i, url in enumerate(woff2_urls):
+        fname = f"ibm-plex-{i}.woff2"
+        woff2_bytes = fetch(url)
+        files[fname] = woff2_bytes
+        css = css.replace(url, fname)
+
+    total_kb = sum(len(v) for v in files.values()) / 1024
+    print(f"  IBM Plex fonts: {len(files)} files, {total_kb:.0f} KB total")
+    return files, css
 
 
 def patch_html(html):
@@ -140,11 +168,12 @@ def main():
     print(f"  Chart.js size: {len(chartjs_bytes) / 1024:.0f} KB")
 
     material_symbols_bytes, font_face = get_material_symbols()
+    ibm_plex_files, ibm_plex_css = get_ibm_fonts()
 
     # --- Patch HTML and extract CSS ---
     html_src          = (ROOT / "index.html").read_text(encoding="utf-8")
     html_out, css_out = patch_html(html_src)
-    css_out           = css_out + f"\n{font_face}\n"   # append @font-face
+    css_out           = css_out + f"\n{ibm_plex_css}\n{font_face}\n"   # append font CSS
 
     logo_src = PROJECT_ROOT / "geotab-logo(full-colour-rgb).png"
 
@@ -159,6 +188,8 @@ def main():
         zf.writestr(f"{ADDIN_FOLDER}/chart.js",                 chartjs_bytes.decode("utf-8"))
         zf.writestr(f"{ADDIN_FOLDER}/material-symbols-rounded.woff2",
                     material_symbols_bytes)
+        for fname, fbytes in ibm_plex_files.items():
+            zf.writestr(f"{ADDIN_FOLDER}/{fname}", fbytes)
         zf.write(logo_src, f"{ADDIN_FOLDER}/geotab-logo(full-colour-rgb).png")
 
     print(f"\nCreated: {zip_path}  ({zip_path.stat().st_size / 1024:.0f} KB)")
