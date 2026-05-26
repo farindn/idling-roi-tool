@@ -1,13 +1,16 @@
-# User Guide — Idling ROI Tool (Web Version)
+# User Guide — Idling ROI Tool (MyGeotab Add-In Version)
 
 **Table of contents**
 
 - Introduction
   - Document Disclaimer
   - Prerequisites
-- Getting Started
-  - Accessing the Tool
-  - Logging In
+  - Differences from the Web Version
+- Installation
+  - Step 1 — Download the Add-In ZIP
+  - Step 2 — Upload to MyGeotab
+  - Step 3 — Access the Tool
+  - Updating to a New Version
 - Dashboard Page
   - Fleet Summary
   - Unassigned Vehicles
@@ -34,11 +37,9 @@
 
 # Introduction
 
-The Idling ROI Tool is a web-based application that connects to your MyGeotab database to analyse vehicle idling behaviour and calculate the potential return on investment (ROI) from reducing idle time across your fleet.
+The Idling ROI Tool is available as a MyGeotab add-in — installed directly into your MyGeotab database via a ZIP file upload. Once installed, it appears in the **Reports** menu alongside other MyGeotab reports, with no separate login required.
 
-This tool is designed for fleet managers and sales professionals to demonstrate the financial impact of idling and project potential savings from idling reduction initiatives.
-
-For the MyGeotab add-in version (no login required, installed directly into MyGeotab), see [USER_GUIDE_ADDIN.md](USER_GUIDE_ADDIN.md).
+This guide covers the add-in version. For the standalone web version (hosted on GitHub Pages), see [USER_GUIDE.md](USER_GUIDE.md).
 
 ## Document Disclaimer
 
@@ -46,52 +47,62 @@ This document's content, including specifications, procedures, and screenshots, 
 
 ## Prerequisites
 
-**IMPORTANT**: To use the Idling ROI Tool, you must have:
+- **MyGeotab Administrator account** — required to install add-ins via System Settings
+- **Powertrain & Fuel Type Configuration** — vehicles must be assigned to the correct Powertrain and Fuel Type groups in MyGeotab; vehicles without valid fuel type assignments will be excluded from calculations
+- **Trip Data** — the selected analysis period must contain trip data for accurate calculations
 
-- **MyGeotab Account**
-  - A valid MyGeotab username and password
-  - Access to the database you want to analyse
+## Differences from the Web Version
 
-- **Powertrain & Fuel Type Configuration**
-  - Vehicles must be assigned to the correct Powertrain and Fuel Type groups in MyGeotab
-  - Vehicles without valid fuel type assignments will be excluded from calculations
-  - Valid fuel types include: Gasoline/Petrol, Diesel, BEV, PHEV, FCEV, Biodiesel, Ethanol, CNG, and LPG
+| Aspect | Web Version | Add-In Version |
+|--------|-------------|----------------|
+| Access | Browser, separate URL | MyGeotab → Reports → Idling ROI Tool |
+| Login | Required (enter credentials manually) | Not required (MyGeotab passes credentials automatically) |
+| Sign out | Navbar sign-out button | Sign out from MyGeotab directly |
+| Installation | None | ZIP upload via System Settings (one-time) |
+| Offline use | Accessible from any browser | Requires MyGeotab login |
 
-- **Trip Data**
-  - The selected analysis period must contain trip data for accurate calculations
-  - Vehicles with no trips or fuel records in the period will be flagged as "inactive"
+All report calculations, dashboard settings, export options, and chart features are identical between both versions.
 
 ---
 
-# Getting Started
+# Installation
 
-## Accessing the Tool
+## Step 1 — Download the Add-In ZIP
 
-The Idling ROI Tool is available at:
+Download `addin/releases/idling-roi-tool.zip` from the project repository.
 
-**https://farindn.github.io/idling-roi-tool/**
+## Step 2 — Upload to MyGeotab
 
-No installation is required. The tool runs entirely in your web browser and connects directly to the MyGeotab API.
+1. Sign in to MyGeotab as an **Administrator**
+2. Go to **Administration → System → System Settings → Add-Ins**
+3. Click **New Add-In**
+4. Click the upload button and select `idling-roi-tool.zip`
+5. Click **OK**
+6. Click **Save**
+7. Refresh the page (Ctrl+R / Cmd+R)
 
-## Logging In
+## Step 3 — Access the Tool
 
-1. Open the tool URL in your browser.
-2. Click **Sign In** on the landing screen.
-3. Enter your MyGeotab credentials in the login modal:
-   - **Username**: Your MyGeotab email address
-   - **Database**: The MyGeotab database name (e.g., `my_company_db`)
-   - **Password**: Your MyGeotab password
-4. Click **Sign In**.
+After installation, the tool appears in the left-hand navigation under **Reports → Idling ROI Tool**.
 
-The tool will authenticate with MyGeotab and load your fleet data. Your session will persist until you log out or close the browser.
+MyGeotab passes your session credentials to the tool automatically — no login screen will be shown.
 
-To sign out, click the user avatar in the top-right corner of the navbar and select **Sign Out**.
+## Updating to a New Version
+
+When a new version of the add-in is available:
+
+1. Download the latest `idling-roi-tool.zip` from `addin/releases/`
+2. Go to **Administration → System → System Settings → Add-Ins**
+3. Click the existing **Idling ROI Tool** entry → **Remove**
+4. Click **New Add-In**, upload the new ZIP → **OK** → **Save** → Refresh
+
+**Note**: MyGeotab does not support in-place add-in updates. You must remove the old version before installing the new one.
 
 ---
 
 # Dashboard Page
 
-After logging in, you will see the **Idling ROI Analysis** dashboard. This page allows you to configure the report parameters before generating your Idling ROI Report.
+When you open the tool, you will land directly on the **Idling ROI Analysis** dashboard. This page allows you to configure the report parameters before generating your Idling ROI Report.
 
 ## Fleet Summary
 
@@ -108,7 +119,7 @@ If any vehicles in your database have an invalid or missing fuel type assignment
 
 These vehicles are **excluded** from cost calculations until their powertrain/fuel type is corrected in MyGeotab.
 
-For each unassigned vehicle, you can click **Edit in MyGeotab** to open the device settings page and assign the correct group.
+For each unassigned vehicle, you can click **Edit in MyGeotab** to open the device settings page and assign the correct group. The link will open the device page within your current MyGeotab session.
 
 ## Estimated Fleet Size
 
@@ -131,7 +142,7 @@ The tool will fetch all trip and fuel data within this window. The analysis peri
 
 **Note**: A hint below the date fields shows the calculated period length (e.g., "Analysis period: May 1, 2026 – May 15, 2026").
 
-**Performance Note**: Longer analysis periods require more data to be fetched from MyGeotab and will take longer to load. For large fleets or multi-month periods, expect the report generation to take additional time.
+**Performance Note**: Longer analysis periods require more data to be fetched from MyGeotab and will take longer to load. For large fleets or multi-month periods, expect additional time for report generation.
 
 ## Currency & Fuel / Idling Settings
 
@@ -362,6 +373,18 @@ These variances are proportional across all vehicles and do not significantly im
 
 ## Common Issues
 
+### Tool does not appear in Reports menu after installation
+
+**Cause**: The page was not refreshed after saving the add-in, or the add-in upload failed.
+
+**Solution**: Go to **Administration → System → System Settings → Add-Ins**, verify the Idling ROI Tool entry is present, click Save, then do a hard refresh (Ctrl+Shift+R / Cmd+Shift+R).
+
+### Dashboard shows "Total Devices: 0" or fleet summary is empty
+
+**Cause**: The add-in bootstrap is still initialising, or no vehicles have a valid fuel type assignment.
+
+**Solution**: Wait a few seconds for the fleet data to load. If the issue persists, check that vehicles are assigned to the correct Powertrain and Fuel Type groups in MyGeotab.
+
 ### "No vehicles with valid powertrain" error
 
 **Cause**: None of your vehicles are assigned to a valid Powertrain and Fuel Type group in MyGeotab.
@@ -382,11 +405,9 @@ These variances are proportional across all vehicles and do not significantly im
 
 **Solution**: Adjust the Idle Rate values in the Fuel Settings table on the dashboard before generating the report.
 
-### Session expired error
+### How do I sign out?
 
-**Cause**: Your MyGeotab session has timed out.
-
-**Solution**: Click **Sign In** to re-authenticate with your MyGeotab credentials. The tool will automatically retry the last action after re-authentication.
+The add-in uses your MyGeotab session — to sign out, log out from MyGeotab directly.
 
 ## Diagnostic CSV
 
