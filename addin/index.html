@@ -318,8 +318,8 @@ input, button, textarea, select { font-family: inherit; }
   display: flex;
   align-items: center;
   gap: var(--space-9);
-  cursor: pointer;
 }
+
 .nav-user-txt { text-align: right; }
 .nav-email {
   font-size: var(--font-size-sm);
@@ -342,36 +342,6 @@ input, button, textarea, select { font-family: inherit; }
 }
 .nav-avatar .material-symbols-rounded { font-size: 18px; }
 
-.logout-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  background: var(--color-surface);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-md);
-  padding: var(--space-5);
-  display: none;
-  min-width: 140px;
-  z-index: 100;
-}
-.logout-dropdown.active { display: block; }
-.logout-btn {
-  display: flex;
-  align-items: center;
-  gap: var(--space-6);
-  width: 100%;
-  padding: var(--space-8) var(--space-9);
-  background: none;
-  border: none;
-  border-radius: var(--radius-xs);
-  font-family: var(--font-sans);
-  font-size: var(--font-size-md);
-  color: var(--color-error);
-  cursor: pointer;
-  transition: background var(--duration-fast) ease;
-}
-.logout-btn:hover { background: rgba(254, 74, 63, 0.08); }
-.logout-btn .material-symbols-rounded { font-size: 18px; }
 
 /* ══════════════════════════════════════════════════════════
    PAGE LAYOUT
@@ -1140,7 +1110,7 @@ input, button, textarea, select { font-family: inherit; }
 </head>
 <body>
 
-<div id="Idling ROI Tool" style="display:none">
+<div id="Idling ROI Tool" style="display:none;position:relative;transform:translateZ(0);min-height:100vh;">
 <div class="screen-container">
 
 <!-- ════════════════════════════════════════════════════════
@@ -1156,19 +1126,13 @@ input, button, textarea, select { font-family: inherit; }
         <div class="nav-subtitle">Powered by MyGeotab</div>
       </div>
     </div>
-    <div class="nav-user" id="nav-user" onclick="toggleLogout()">
+    <div class="nav-user" id="nav-user">
       <div class="nav-user-txt">
         <div class="nav-email"></div>
         <div class="nav-dbid"></div>
       </div>
       <div class="nav-avatar">
         <span class="material-symbols-rounded">account_circle</span>
-      </div>
-      <div class="logout-dropdown" id="logout-dropdown">
-        <button class="logout-btn" onclick="doLogout(event)">
-          <span class="material-symbols-rounded">logout</span>
-          Sign Out
-        </button>
       </div>
     </div>
   </nav>
@@ -1500,19 +1464,13 @@ input, button, textarea, select { font-family: inherit; }
         <div class="nav-subtitle">Powered by MyGeotab</div>
       </div>
     </div>
-    <div class="nav-user" id="nav-user-report" onclick="toggleLogout('report')">
+    <div class="nav-user" id="nav-user-report">
       <div class="nav-user-txt">
         <div class="nav-email"></div>
         <div class="nav-dbid"></div>
       </div>
       <div class="nav-avatar">
         <span class="material-symbols-rounded">account_circle</span>
-      </div>
-      <div class="logout-dropdown" id="logout-dropdown-report">
-        <button class="logout-btn" onclick="doLogout(event)">
-          <span class="material-symbols-rounded">logout</span>
-          Sign Out
-        </button>
       </div>
     </div>
   </nav>
@@ -2823,8 +2781,6 @@ function showScreen(name) {
       updateDashboardFromSettings();
     }
   }
-  const dd = document.getElementById('logout-dropdown');
-  if (dd) dd.classList.remove('active');
 }
 
 /* Default fuel prices by type */
@@ -2923,31 +2879,6 @@ async function showLoginModal() {
   }
 }
 
-/* ─── Logout dropdown ─── */
-function toggleLogout(page) {
-  const suffix = page === 'report' ? '-report' : '';
-  const dd = document.getElementById('logout-dropdown' + suffix);
-  if (dd) dd.classList.toggle('active');
-}
-function doLogout(e) {
-  e.stopPropagation();
-  document.querySelectorAll('.logout-dropdown').forEach(dd => dd.classList.remove('active'));
-  showNotif({
-    type: 'info',
-    icon: 'info',
-    title: 'Sign Out',
-    msg: 'To sign out, please log out from MyGeotab.',
-    dismissLabel: 'Close'
-  });
-}
-document.addEventListener('click', e => {
-  document.querySelectorAll('.nav-user').forEach(nu => {
-    if (!nu.contains(e.target)) {
-      const dd = nu.querySelector('.logout-dropdown');
-      if (dd) dd.classList.remove('active');
-    }
-  });
-});
 
 /* ─── Back to Dashboard ─── */
 function goBackToDashboard() {
