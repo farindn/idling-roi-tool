@@ -5,14 +5,16 @@ Build the Idling ROI Tool as a MyGeotab add-in ZIP.
 Usage: python build_zip.py   (run from the addin/ directory)
 Output: releases/idling-roi-tool.zip
 
-MyGeotab's add-in iframe blocks external CDN requests, so Chart.js and
-the Material Symbols font are downloaded at build time and bundled in
-the ZIP. IBM Plex Sans/Mono fall back to system fonts (acceptable).
+MyGeotab's add-in context blocks inline <style> tags (CSP) and external CDN
+requests, so:
+  - The inline CSS is extracted into main.css (linked stylesheet)
+  - Chart.js and the Material Symbols font are downloaded and bundled
 
 ZIP structure:
   configuration.json
   Idling ROI Tool/
-    index.html                         (patched — local asset refs)
+    index.html                         (patched — <style> -> <link>, local refs)
+    main.css                           (extracted CSS + @font-face)
     chart.js                           (bundled from CDN)
     material-symbols-rounded.woff2     (bundled from Google Fonts)
     geotab-logo(full-colour-rgb).png
@@ -76,9 +78,15 @@ def get_material_symbols():
     return woff2_bytes, font_face
 
 
-def patch_html(html, font_face_css):
-    """Rewrite external CDN references to local files bundled in the ZIP."""
+def patch_html(html):
+    """
+    Patch the HTML for the add-in context. Returns (patched_html, extracted_css).
 
+    - Extracts the inline <style> block into a separate string (-> main.css)
+    - Replaces <style>...</style> with <link rel="stylesheet" href="main.css">
+    - Removes Google Fonts preconnect and stylesheet links
+    - Replaces CDN Chart.js <script> with local reference
+    """
     # Remove Google Fonts preconnect hints
     html = re.sub(r'<link rel="preconnect"[^>]*>\s*', "", html)
 
@@ -92,10 +100,18 @@ def patch_html(html, font_face_css):
         html,
     )
 
-    # Inject @font-face for Material Symbols before the closing </style>
-    html = html.replace("</style>", f"\n{font_face_css}\n</style>", 1)
+    # Extract the inline <style> block and replace with <link> — must run AFTER
+    # the re.sub calls above so positions in style_match reflect the current html.
+    style_match = re.search(r"<style>(.*?)</style>", html, re.DOTALL)
+    css_content = style_match.group(1) if style_match else ""
+    if style_match:
+        html = (
+            html[: style_match.start()]
+            + '<link rel="stylesheet" href="main.css">'
+            + html[style_match.end() :]
+        )
 
-    return html
+    return html, css_content
 
 
 def main():
@@ -125,13 +141,14 @@ def main():
     chartjs_bytes = fetch(CHARTJS_URL)
     print(f"  Chart.js size: {len(chartjs_bytes) / 1024:.0f} KB")
 
-    material_symbols_bytes, font_face_css = get_material_symbols()
+    material_symbols_bytes, font_face = get_material_symbols()
 
-    # --- Patch HTML ---
-    html_src  = (ROOT / "index.html").read_text(encoding="utf-8")
-    html_out  = patch_html(html_src, font_face_css)
+    # --- Patch HTML and extract CSS ---
+    html_src          = (ROOT / "index.html").read_text(encoding="utf-8")
+    html_out, css_out = patch_html(html_src)
+    css_out           = css_out + f"\n{font_face}\n"   # append @font-face
 
-    logo_src  = PROJECT_ROOT / "geotab-logo(full-colour-rgb).png"
+    logo_src = PROJECT_ROOT / "geotab-logo(full-colour-rgb).png"
 
     # --- Assemble ZIP ---
     RELEASES.mkdir(parents=True, exist_ok=True)
@@ -140,6 +157,7 @@ def main():
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
         zf.writestr("configuration.json",                       json.dumps(config, indent=2))
         zf.writestr(f"{ADDIN_FOLDER}/index.html",               html_out)
+        zf.writestr(f"{ADDIN_FOLDER}/main.css",                 css_out)
         zf.writestr(f"{ADDIN_FOLDER}/chart.js",                 chartjs_bytes.decode("utf-8"))
         zf.writestr(f"{ADDIN_FOLDER}/material-symbols-rounded.woff2",
                     material_symbols_bytes)
