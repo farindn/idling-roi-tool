@@ -648,6 +648,60 @@ input, button, textarea, select { font-family: inherit; }
 .fb-unknown { background: #fff1f0; color: #c0392b; }
 
 /* ══════════════════════════════════════════════════════════
+   INPUT GROUP & INPUT FIELD WITH ICON
+   ══════════════════════════════════════════════════════════ */
+.ig {
+  margin-bottom: var(--space-11);
+  text-align: left;
+}
+.ig label {
+  display: block;
+  font-size: var(--font-size-xl);
+  color: var(--color-primary);
+  margin-bottom: var(--space-5);
+  font-weight: var(--font-weight-normal);
+}
+.if {
+  display: flex !important;
+  align-items: center;
+  gap: var(--space-6);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border) !important;
+  border-radius: var(--radius-md);
+  padding: var(--space-8) var(--space-11);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.if .material-symbols-rounded {
+  font-size: 1.4rem;
+  color: var(--color-slate);
+  flex-shrink: 0;
+}
+.if input, .if select {
+  flex: 1;
+  min-width: 0;
+  border: none !important;
+  background: transparent !important;
+  font-size: var(--font-size-input);
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-normal);
+  color: var(--color-primary);
+  outline: none;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+.if input::placeholder { color: #b0bec5; }
+.if .unit {
+  font-size: var(--font-size-xs);
+  color: var(--color-slate);
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+}
+.if input[type=number] { font-family: var(--font-mono); }
+
+/* ══════════════════════════════════════════════════════════
    COMPACT INPUT FIELD (inside tables)
    ══════════════════════════════════════════════════════════ */
 .if-sm {
