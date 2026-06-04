@@ -976,6 +976,62 @@ input, button, textarea, select { font-family: inherit; }
 .bench-tier-you .bench-label { font-weight: var(--font-weight-semibold); color: var(--color-primary); }
 
 /* ══════════════════════════════════════════════════════════
+   COST / SAVING MATRIX — 2×2 grid with left row labels
+   ══════════════════════════════════════════════════════════ */
+.cost-matrix {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.55fr) 1fr 1fr;
+  gap: var(--space-11);
+  align-items: stretch;
+}
+.cm-corner { /* empty top-left cell */ }
+.cm-colhd {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-slate);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  align-self: end;
+  padding: 0 0 var(--space-3) var(--space-3);
+}
+.cm-rowhd {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-3);
+}
+.cm-rowhd-ttl {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+.cm-rowhd-sub {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-slate);
+}
+
+/* Stretch goal strip — aspirational 10% benchmark callout */
+.stretch-goal {
+  margin-top: var(--space-12);
+  padding: var(--space-9) var(--space-11);
+  border-radius: var(--radius-sm);
+  background: #f0f9ff;
+  border: var(--border-width) solid var(--color-accent);
+  display: flex;
+  align-items: center;
+  gap: var(--space-9);
+  font-size: var(--font-size-sm);
+  color: var(--color-primary);
+  line-height: 1.5;
+}
+.stretch-goal .material-symbols-rounded { font-size: 22px; color: var(--color-accent); flex-shrink: 0; }
+.stretch-goal .sg-val { font-family: var(--font-mono); font-weight: var(--font-weight-semibold); color: var(--color-accent); }
+.stretch-goal.is-topquartile { background: #f0fdf4; border-color: var(--color-success); }
+.stretch-goal.is-topquartile .material-symbols-rounded,
+.stretch-goal.is-topquartile .sg-val { color: var(--color-success); }
+
+/* ══════════════════════════════════════════════════════════
    RESPONSIVE
    ══════════════════════════════════════════════════════════ */
 @media (max-width: 1024px) {
@@ -987,6 +1043,16 @@ input, button, textarea, select { font-family: inherit; }
   .g4           { grid-template-columns: 1fr 1fr; }
   .g3, .g2      { grid-template-columns: 1fr; }
   .g6           { grid-template-columns: repeat(2, 1fr); }
+  /* Matrix: drop the column-header row, row label becomes a full-width band */
+  .cost-matrix  { grid-template-columns: 1fr 1fr; }
+  .cm-colhd     { display: none; }
+  .cm-rowhd     {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: baseline;
+    gap: var(--space-6);
+    padding-top: var(--space-6);
+  }
   .kpi-grid     { grid-template-columns: 1fr 1fr; }
   .page         { padding: var(--space-11); }
   .page-hd h1   { font-size: var(--font-size-3xl); }
@@ -1046,6 +1112,7 @@ input, button, textarea, select { font-family: inherit; }
 @media (max-width: 480px) {
   .g4, .g6      { grid-template-columns: 1fr; }
   .g2           { grid-template-columns: 1fr; }
+  .cost-matrix  { grid-template-columns: 1fr; }
   .kpi-grid     { grid-template-columns: 1fr; }
   .gen-steps    { max-width: 100%; }
 
@@ -1536,39 +1603,52 @@ input, button, textarea, select { font-family: inherit; }
       </div>
     </div>
 
-    <!-- Idling Cost Overview (consolidated with Scaled Annual Savings per review) -->
-    <div class="sc cost-overview">
+    <!-- Idling Cost Overview — baseline: how much you're currently wasting -->
+    <div class="sc cost-overview" id="rpt-sec-cost">
       <div class="sc-hd">
-        <div class="sc-ico"><span class="material-symbols-rounded">analytics</span></div>
+        <div class="sc-ico"><span class="material-symbols-rounded">trending_down</span></div>
         <div>
           <div class="sc-ttl">Idling Cost Overview</div>
-          <div class="sc-sub" id="rpt-period-sub">&mdash;</div>
+          <div class="sc-sub" id="rpt-cost-sub">How much you&rsquo;re currently wasting</div>
         </div>
       </div>
-      <div class="g4">
+      <div class="cost-matrix">
+        <div class="cm-corner"></div>
+        <div class="cm-colhd">Selected period</div>
+        <div class="cm-colhd">Annual</div>
+
+        <div class="cm-rowhd">
+          <span class="cm-rowhd-ttl">Existing Fleet</span>
+          <span class="cm-rowhd-sub" id="rpt-cost-poc-count">&mdash; vehicles</span>
+        </div>
         <div class="stat-card">
           <span class="material-symbols-rounded stat-card-icon" style="color:var(--color-error)">payments</span>
           <div class="stat-card-label">Total Idle Cost</div>
           <div class="stat-card-value" style="color:var(--color-error);" id="rpt-cost">USD 26,841</div>
-          <div class="stat-card-sub" id="rpt-cost-sub">At configured prices</div>
+          <div class="stat-card-sub" id="rpt-cost-base-sub">&mdash;</div>
         </div>
         <div class="stat-card">
-          <span class="material-symbols-rounded stat-card-icon" style="color:var(--color-success)">savings</span>
-          <div class="stat-card-label">Savings at 25% Reduction</div>
-          <div class="stat-card-value" style="color:var(--color-success);" id="rpt-savings25">USD 6,710</div>
-          <div class="stat-card-sub" id="rpt-savings25-sub">Annually based on 243 vehicles<br>30.3% → 22.7%</div>
+          <span class="material-symbols-rounded stat-card-icon" style="color:var(--color-error)">payments</span>
+          <div class="stat-card-label">Total Idle Cost</div>
+          <div class="stat-card-value" style="color:var(--color-error);" id="rpt-cost-annual">USD 107,364</div>
+          <div class="stat-card-sub" id="rpt-cost-annual-sub">Selected period extrapolated to 12 months</div>
         </div>
-        <div class="stat-card">
-          <span class="material-symbols-rounded stat-card-icon" id="rpt-card3-icon" style="color:var(--color-accent)">trending_up</span>
-          <div class="stat-card-label" id="rpt-card3-label">Scaled Annual Savings</div>
-          <div class="stat-card-value" id="rpt-card3-value" style="color:var(--color-accent);">USD 8,388</div>
-          <div class="stat-card-sub" id="rpt-card3-sub">Projected for 100 vehicles<br>At 25% reduction</div>
+
+        <div class="cm-rowhd cm-fleet-row">
+          <span class="cm-rowhd-ttl">Projected Fleet</span>
+          <span class="cm-rowhd-sub" id="rpt-cost-fleet-count">&mdash; vehicles</span>
         </div>
-        <div class="stat-card">
-          <span class="material-symbols-rounded stat-card-icon" id="rpt-card4-icon" style="color:var(--color-accent)">flag</span>
-          <div class="stat-card-label" id="rpt-card4-label">Savings to Reach 10%</div>
-          <div class="stat-card-value" id="rpt-card4-value" style="color:var(--color-accent);">USD 2,761</div>
-          <div class="stat-card-sub" id="rpt-card4-sub">Projected for 243 vehicles<br>30.3% → 10%</div>
+        <div class="stat-card cm-fleet-row">
+          <span class="material-symbols-rounded stat-card-icon" style="color:var(--color-error)">payments</span>
+          <div class="stat-card-label">Scaled Total Idle Cost</div>
+          <div class="stat-card-value" style="color:var(--color-error);" id="rpt-cost-scaled">USD 33,551</div>
+          <div class="stat-card-sub" id="rpt-cost-scaled-sub">POC rate scaled to full fleet</div>
+        </div>
+        <div class="stat-card cm-fleet-row">
+          <span class="material-symbols-rounded stat-card-icon" style="color:var(--color-error)">payments</span>
+          <div class="stat-card-label">Scaled Total Idle Cost</div>
+          <div class="stat-card-value" style="color:var(--color-error);" id="rpt-cost-scaled-annual">USD 134,205</div>
+          <div class="stat-card-sub" id="rpt-cost-scaled-annual-sub">&mdash;</div>
         </div>
       </div>
 
@@ -1595,6 +1675,62 @@ input, button, textarea, select { font-family: inherit; }
             <span class="bench-val" id="bench-your-val">&mdash;</span>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Saving Opportunity Overview — carrot: how much you can save -->
+    <div class="sc cost-overview saving-overview" id="rpt-sec-saving">
+      <div class="sc-hd">
+        <div class="sc-ico"><span class="material-symbols-rounded">savings</span></div>
+        <div>
+          <div class="sc-ttl">Saving Opportunity Overview</div>
+          <div class="sc-sub">How much you can save by reducing idling 25%</div>
+        </div>
+      </div>
+      <div class="cost-matrix">
+        <div class="cm-corner"></div>
+        <div class="cm-colhd">Selected period</div>
+        <div class="cm-colhd">Annual</div>
+
+        <div class="cm-rowhd">
+          <span class="cm-rowhd-ttl">Existing Fleet</span>
+          <span class="cm-rowhd-sub" id="rpt-sav-poc-count">&mdash; vehicles</span>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon" style="color:var(--color-success)">savings</span>
+          <div class="stat-card-label">Saving at 25% Reduction</div>
+          <div class="stat-card-value" style="color:var(--color-success);" id="rpt-sav-period">USD 6,710</div>
+          <div class="stat-card-sub" id="rpt-sav-period-sub">&mdash;</div>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-rounded stat-card-icon" style="color:var(--color-success)">savings</span>
+          <div class="stat-card-label">Savings at 25% Reduction</div>
+          <div class="stat-card-value" style="color:var(--color-success);" id="rpt-sav-annual">USD 26,841</div>
+          <div class="stat-card-sub" id="rpt-sav-annual-sub">&mdash;</div>
+        </div>
+
+        <div class="cm-rowhd cm-fleet-row">
+          <span class="cm-rowhd-ttl">Projected Fleet</span>
+          <span class="cm-rowhd-sub" id="rpt-sav-fleet-count">&mdash; vehicles</span>
+        </div>
+        <div class="stat-card cm-fleet-row">
+          <span class="material-symbols-rounded stat-card-icon" style="color:var(--color-success)">savings</span>
+          <div class="stat-card-label">Scaled Saving at 25%</div>
+          <div class="stat-card-value" style="color:var(--color-success);" id="rpt-sav-scaled-period">USD 8,388</div>
+          <div class="stat-card-sub" id="rpt-sav-scaled-period-sub">&mdash;</div>
+        </div>
+        <div class="stat-card cm-fleet-row">
+          <span class="material-symbols-rounded stat-card-icon" style="color:var(--color-success)">savings</span>
+          <div class="stat-card-label">Scaled Saving at 25%</div>
+          <div class="stat-card-value" style="color:var(--color-success);" id="rpt-sav-scaled-annual">USD 33,551</div>
+          <div class="stat-card-sub" id="rpt-sav-scaled-annual-sub">&mdash;</div>
+        </div>
+      </div>
+
+      <!-- Stretch goal — aspirational 10% benchmark -->
+      <div class="stretch-goal" id="rpt-stretch">
+        <span class="material-symbols-rounded">flag</span>
+        <div id="rpt-stretch-text">&mdash;</div>
       </div>
     </div>
 
@@ -2032,10 +2168,12 @@ async function loadDashboardFromApi() {
 
     groupAncestryMap = buildGroupAncestryMap(allGroups);
 
+    const dsiMap = await fetchLastCommMap();
+
     configuredVehicles = allDevices.map(d => {
       const fuel = resolveFuelType(d, groupAncestryMap);
-      const lastComm = d.lastCommunicationTime
-        ? formatLastComm(new Date(d.lastCommunicationTime))
+      const lastComm = dsiMap[d.id]
+        ? formatLastComm(new Date(dsiMap[d.id]))
         : 'Never';
       return {
         name: d.name,
@@ -2107,6 +2245,16 @@ function formatLastComm(date) {
   const hr = String(date.getHours()).padStart(2, '0');
   const mn = String(date.getMinutes()).padStart(2, '0');
   return day + ' ' + months[date.getMonth()] + ' ' + date.getFullYear() + ', ' + hr + ':' + mn;
+}
+
+// Device.lastCommunicationTime is not returned by Get<Device>; the authoritative
+// last-contact timestamp is DeviceStatusInfo.dateTime. Build a deviceId -> dateTime map.
+async function fetchLastCommMap() {
+  const map = {};
+  for await (const batch of apiPaginate('Get', { typeName: 'DeviceStatusInfo' })) {
+    batch.forEach(s => { if (s.device && s.device.id) map[s.device.id] = s.dateTime; });
+  }
+  return map;
 }
 
 function updateGenStep(stepNum, state) {
@@ -2201,10 +2349,12 @@ async function runReportGeneration() {
 
       groupAncestryMap = buildGroupAncestryMap(allGroups);
 
+      const dsiMap = await fetchLastCommMap();
+
       configuredVehicles = allDevices.map(d => {
         const fuel = resolveFuelType(d, groupAncestryMap);
-        const lastComm = d.lastCommunicationTime
-          ? formatLastComm(new Date(d.lastCommunicationTime))
+        const lastComm = dsiMap[d.id]
+          ? formatLastComm(new Date(dsiMap[d.id]))
           : 'Never';
         return {
           name: d.name,
@@ -2495,10 +2645,14 @@ function computeReport(devices, trips, fuelRecords, settings) {
     ? settings.estimatedVehicles / devicesWithData
     : 1;
   const savings25 = annualIdleCost * 0.25;
+  const savings25Period = totalIdleCost * 0.25;
   const idlePctAfter25 = idlePct * 0.75;
   const idealSavings = idlePct > 10 ? annualIdleCost * (1 - 10 / idlePct) : 0;
   const industryAvgSavings = idlePct > 0 && idlePct < 20 ? annualIdleCost * (20 / idlePct - 1) : 0;
+  const scaledTotalIdleCost = totalIdleCost * scaleFactor;
+  const scaledAnnualIdleCost = annualIdleCost * scaleFactor;
   const scaledSavings25 = savings25 * scaleFactor;
+  const scaledSavings25Period = savings25Period * scaleFactor;
   const scaledIdealSavings = idealSavings * scaleFactor;
   const scaledIndustryAvgSavings = industryAvgSavings * scaleFactor;
 
@@ -2526,10 +2680,14 @@ function computeReport(devices, trips, fuelRecords, settings) {
     idlePct,
     periodDays,
     savings25,
+    savings25Period,
     idlePctAfter25,
     idealSavings,
     industryAvgSavings,
+    scaledTotalIdleCost,
+    scaledAnnualIdleCost,
     scaledSavings25,
+    scaledSavings25Period,
     scaledIdealSavings,
     scaledIndustryAvgSavings,
     scaleFactor,
@@ -3021,54 +3179,78 @@ function renderReport() {
     '+ <span style="font-family:var(--font-mono);color:var(--color-primary);">' +
     formatNum(r.totalIdleKwh) + ' kWh</span> while idle';
 
-  document.getElementById('rpt-cost').textContent = currency + ' ' + formatNum(r.totalIdleCost);
-  document.getElementById('rpt-cost-sub').textContent = r.periodDays + '-day period at configured prices';
-
-  // Card 2: Savings at 25% Reduction — unscaled, based on current vehicles in report
-  document.getElementById('rpt-savings25').textContent = currency + ' ' + formatNum(r.savings25);
-  document.getElementById('rpt-savings25-sub').innerHTML =
-    'Annually based on ' + r.devicesWithData + ' vehicles<br>' +
-    '<span style="font-family:var(--font-mono);">' + r.idlePct.toFixed(1) + '% &rarr; ' + r.idlePctAfter25.toFixed(1) + '%</span>';
+  // ── Date + scope strings ──
+  const startDate = r.settings?.startDate ? new Date(r.settings.startDate + 'T00:00:00') : new Date();
+  const endDate = r.settings?.endDate ? new Date(r.settings.endDate + 'T00:00:00') : new Date();
+  const fmtDate = (d) => d.getDate() + ' ' + monthNames[d.getMonth()] + ' ' + d.getFullYear();
+  const periodFullStr = fmtDate(startDate) + ' – ' + fmtDate(endDate);
+  const startStr = monthNames[startDate.getMonth()] + ' ' + startDate.getFullYear();
+  const endStr = monthNames[endDate.getMonth()] + ' ' + endDate.getFullYear();
+  const database = api.session?.database || '';
 
   const isScaled = r.scaleFactor > 1;
   const estVehicles = r.settings?.estimatedVehicles || 0;
-  const scaledSuffix = isScaled
-    ? 'Projected for ' + estVehicles + ' vehicles'
-    : r.devicesWithData + ' vehicles';
+  const pocCount = r.devicesWithData;
+  const periodStr = startStr + ' – ' + endStr;
 
-  // Card 3: Scaled Annual Savings — always 25% reduction × fleet scaling factor
-  const c3Icon  = document.getElementById('rpt-card3-icon');
-  const c3Label = document.getElementById('rpt-card3-label');
-  const c3Value = document.getElementById('rpt-card3-value');
-  const c3Sub   = document.getElementById('rpt-card3-sub');
-  c3Icon.textContent = 'trending_up';
-  c3Icon.style.color = 'var(--color-accent)';
-  c3Label.textContent = 'Scaled Annual Savings';
-  c3Value.textContent = currency + ' ' + formatNum(r.scaledSavings25);
-  c3Value.style.color = 'var(--color-accent)';
-  c3Sub.innerHTML = scaledSuffix + '<br>At 25% reduction';
+  // ── Section 1: Idling Cost Overview (baseline) ──
+  document.getElementById('rpt-cost-sub').textContent =
+    'How much you’re currently wasting · ' + periodStr;
+  document.getElementById('rpt-cost-poc-count').textContent = pocCount + ' vehicles';
+  document.getElementById('rpt-cost').textContent = currency + ' ' + formatNum(r.totalIdleCost);
+  document.getElementById('rpt-cost-annual').textContent = currency + ' ' + formatNum(r.annualIdleCost);
+  document.getElementById('rpt-cost-scaled').textContent = currency + ' ' + formatNum(r.scaledTotalIdleCost);
+  document.getElementById('rpt-cost-scaled-annual').textContent = currency + ' ' + formatNum(r.scaledAnnualIdleCost);
+  // Card sub-text — methodology lines (multi-line via <br>)
+  const dStr = r.periodDays + '-day period';
+  const pricesLine = dStr + ' at configured prices';
+  const annualLine = dStr + ' extrapolated to 12 months';
+  const scaledLine = 'Scaled from ' + pocCount + ' to ' + estVehicles + ' vehicles';
+  const pctLine = r.idlePct.toFixed(1) + '% &rarr; ' + (r.idlePct * 0.75).toFixed(1) + '%';
 
-  // Card 4: Savings to Reach 10% (above benchmark) or Top Quartile recognition (below)
-  const c4Icon  = document.getElementById('rpt-card4-icon');
-  const c4Label = document.getElementById('rpt-card4-label');
-  const c4Value = document.getElementById('rpt-card4-value');
-  const c4Sub   = document.getElementById('rpt-card4-sub');
+  document.getElementById('rpt-cost-base-sub').innerHTML = pricesLine;
+  document.getElementById('rpt-cost-annual-sub').innerHTML = annualLine;
+  document.getElementById('rpt-cost-scaled-sub').innerHTML = pricesLine + '<br>' + scaledLine;
+  document.getElementById('rpt-cost-scaled-annual-sub').innerHTML = annualLine + '<br>' + scaledLine;
 
+  document.getElementById('rpt-sav-period-sub').innerHTML = pricesLine + '<br>' + pctLine;
+  document.getElementById('rpt-sav-annual-sub').innerHTML = annualLine + '<br>' + pctLine;
+  document.getElementById('rpt-sav-scaled-period-sub').innerHTML = pricesLine + '<br>' + scaledLine + '<br>' + pctLine;
+  document.getElementById('rpt-sav-scaled-annual-sub').innerHTML = annualLine + '<br>' + scaledLine + '<br>' + pctLine;
+
+  // ── Section 2: Saving Opportunity Overview (25% reduction) ──
+  document.getElementById('rpt-sav-poc-count').textContent = pocCount + ' vehicles';
+  document.getElementById('rpt-sav-period').textContent = currency + ' ' + formatNum(r.savings25Period);
+  document.getElementById('rpt-sav-annual').textContent = currency + ' ' + formatNum(r.savings25);
+  document.getElementById('rpt-sav-scaled-period').textContent = currency + ' ' + formatNum(r.scaledSavings25Period);
+  document.getElementById('rpt-sav-scaled-annual').textContent = currency + ' ' + formatNum(r.scaledSavings25);
+
+  // Fleet (scaled) rows — only shown when projecting to a larger fleet
+  const fleetCountStr = estVehicles + ' vehicles';
+  document.getElementById('rpt-cost-fleet-count').textContent = fleetCountStr;
+  document.getElementById('rpt-sav-fleet-count').textContent = fleetCountStr;
+  document.querySelectorAll('#rpt-sec-cost .cm-fleet-row, #rpt-sec-saving .cm-fleet-row')
+    .forEach(el => { el.style.display = isScaled ? '' : 'none'; });
+
+  // ── Stretch goal strip: reach the 10% benchmark (or Top Quartile recognition) ──
+  const stretchEl = document.getElementById('rpt-stretch');
+  const stretchTxt = document.getElementById('rpt-stretch-text');
+  const stretchIcon = stretchEl.querySelector('.material-symbols-rounded');
   if (aboveBenchmark) {
-    c4Icon.textContent = 'flag';
-    c4Icon.style.color = 'var(--color-accent)';
-    c4Label.textContent = 'Savings to Reach 10%';
-    c4Value.textContent = currency + ' ' + formatNum(r.scaledIdealSavings);
-    c4Value.style.color = 'var(--color-accent)';
-    c4Sub.innerHTML = scaledSuffix + '<br>' +
-      '<span style="font-family:var(--font-mono);">' + r.idlePct.toFixed(1) + '% &rarr; 10%</span>';
+    stretchEl.classList.remove('is-topquartile');
+    stretchIcon.textContent = 'flag';
+    const idealVal = isScaled ? r.scaledIdealSavings : r.idealSavings;
+    const scopeWord = isScaled ? 'fleet-wide' : 'for your POC fleet';
+    stretchTxt.innerHTML =
+      'Stretch goal &mdash; cut idling from ' +
+      '<span class="sg-val">' + r.idlePct.toFixed(1) + '%</span> to the 10% benchmark to save ' +
+      '<span class="sg-val">' + currency + ' ' + formatNum(idealVal) + '</span> annually ' + scopeWord + '.';
   } else {
-    c4Icon.textContent = 'emoji_events';
-    c4Icon.style.color = 'var(--color-success)';
-    c4Label.textContent = 'Top Quartile Fleet';
-    c4Value.textContent = r.idlePct.toFixed(1) + '%';
-    c4Value.style.color = 'var(--color-success)';
-    c4Sub.textContent = 'Already below the 10% benchmark';
+    stretchEl.classList.add('is-topquartile');
+    stretchIcon.textContent = 'emoji_events';
+    stretchTxt.innerHTML =
+      'Top quartile fleet &mdash; your idling is already at ' +
+      '<span class="sg-val">' + r.idlePct.toFixed(1) + '%</span>, below the 10% benchmark. Keep it up.';
   }
 
   // Benchmark strip — set "Your Fleet" dot color and value
@@ -3083,16 +3265,6 @@ function renderReport() {
     const bucketLabel = r.bucketMode === 'day' ? 'Daily' : r.bucketMode === 'week' ? 'Weekly' : 'Monthly';
     trendSub.textContent = bucketLabel + ' driving and idle hours across all powertrains';
   }
-
-  const startDate = r.settings?.startDate ? new Date(r.settings.startDate + 'T00:00:00') : new Date();
-  const endDate = r.settings?.endDate ? new Date(r.settings.endDate + 'T00:00:00') : new Date();
-  const fmtDate = (d) => d.getDate() + ' ' + monthNames[d.getMonth()] + ' ' + d.getFullYear();
-  const periodFullStr = fmtDate(startDate) + ' – ' + fmtDate(endDate);
-  const startStr = monthNames[startDate.getMonth()] + ' ' + startDate.getFullYear();
-  const endStr = monthNames[endDate.getMonth()] + ' ' + endDate.getFullYear();
-  const database = api.session?.database || '';
-
-  document.getElementById('rpt-period-sub').textContent = startStr + ' – ' + endStr + ' · ' + r.devicesWithData + ' vehicles';
 
   const now = new Date();
   const genDate = fmtDate(now);

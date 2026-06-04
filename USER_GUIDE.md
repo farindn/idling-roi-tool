@@ -19,7 +19,7 @@
   - Activity Trend
   - Trip Activity
   - Idling Cost Overview
-  - Fleet Idling Benchmark
+  - Saving Opportunity Overview
   - Exporting the Report
 - Understanding the Calculations
   - How Idling Cost is Calculated
@@ -237,57 +237,26 @@ In mixed fleets, each vehicle is handled independently and all per-vehicle value
 
 ## Idling Cost Overview
 
-Four stat cards show the financial analysis:
+This section establishes the baseline — **how much the fleet is currently spending on idling**. It is laid out as a 2×2 matrix so you can read across time and across fleet size at a glance:
 
-### Total Idle Cost
+|  | Selected Period | Annual |
+|--|-----------------|--------|
+| **Existing Fleet** | Total Idle Cost for the analysis period | Same cost extrapolated to 12 months |
+| **Projected Fleet** | Period cost scaled to your estimated fleet | Annual cost scaled to your estimated fleet |
 
-The cost of fuel and energy consumed during idling for the analysis period.
+- **Existing Fleet** — the vehicles with valid data in the current analysis. The vehicle count is shown on the row label.
+- **Projected Fleet** — the same figures scaled up to the **Estimated Total Vehicles** value from the dashboard. These rows only appear when you set an estimated fleet size larger than the current fleet.
 
-**Calculation**: `Idle Fuel (L) × Fuel Price ($/L)` or `Idle Energy (kWh) × Electricity Price ($/kWh)`
+**Calculation**: `Idle Fuel (L) × Fuel Price` or `Idle Energy (kWh) × Electricity Price`, summed across all vehicles. The Annual column multiplies the period figure by `365 ÷ period days`.
 
-The sub-text shows the period length (e.g., "15-day period at configured prices").
+Each card carries a sub-line describing its basis, for example:
+- "15-day period at configured prices"
+- "15-day period extrapolated to 12 months"
+- "Scaled from 59 to 100 vehicles"
 
-### Savings at 25% Reduction
+### Fleet Idling Benchmark
 
-The projected **annual** savings if the fleet's idling ratio is reduced by 25% from its current level, based on the vehicles currently included in the analysis.
-
-**Calculation**:
-```
-Annual Idle Cost = Period Idle Cost × (365 / Period Days)
-Savings at 25% = Annual Idle Cost × 0.25
-```
-
-The 25% reduction applies to the idling ratio itself — for example, a fleet currently idling at 28.7% would drop to 21.5% under this scenario.
-
-The sub-text shows the vehicle count and the resulting idling rate change (e.g., "Annually based on 59 vehicles" / "22.1% → 16.6%").
-
-### Scaled Annual Savings
-
-The same 25% reduction savings, scaled up to your **Estimated Total Vehicles** figure from the dashboard. This is the number most relevant for sales conversations.
-
-**Calculation**:
-```
-Scale Factor = Estimated Vehicles / Current Vehicles
-Scaled Annual Savings = Savings at 25% × Scale Factor
-```
-
-If no estimated fleet size is set, this card shows the same value as Savings at 25% Reduction.
-
-### Savings to Reach 10%
-
-The projected **annual** savings if the fleet reduces its idling rate to the **10% industry benchmark** (top quartile). Also scaled to the estimated fleet size.
-
-**Calculation**:
-```
-Savings to Reach 10% = Annual Idle Cost × (1 − 10 / Idling%)
-Scaled Savings = Savings to Reach 10% × Scale Factor
-```
-
-This card only appears when the fleet's idling rate is **above 10%**. If the fleet is already at or below 10%, this card is replaced by a **Top Quartile Fleet** recognition card.
-
-## Fleet Idling Benchmark
-
-A reference strip at the bottom of the Idling Cost Overview shows where the fleet stands against established benchmarks:
+A reference strip below the cost matrix shows where the fleet stands against established benchmarks:
 
 | Tier | Idling Rate | Meaning |
 |------|-------------|---------|
@@ -296,6 +265,28 @@ A reference strip at the bottom of the Idling Cost Overview shows where the flee
 | **Your Fleet** | Actual % | The fleet's measured idling rate for this period |
 
 The **Your Fleet** indicator is colour-coded: green if at or below 10%, red if above 10%.
+
+## Saving Opportunity Overview
+
+This section presents the opportunity — **how much the fleet can save by reducing idling by 25%**. It uses the same 2×2 matrix layout:
+
+|  | Selected Period | Annual |
+|--|-----------------|--------|
+| **Existing Fleet** | Saving at 25% reduction for the period | Annual saving at 25% reduction |
+| **Projected Fleet** | Period saving scaled to your estimated fleet | Annual saving scaled to your estimated fleet |
+
+**Calculation**: `Idle Cost × 0.25`. The 25% applies to the idling ratio itself — a fleet currently idling at 28.7% would drop to 21.5% (28.7 × 0.75).
+
+Each savings card's sub-line shows the basis plus the resulting idling-rate change, for example:
+- "15-day period at configured prices" / "28.7% → 21.5%"
+- "Scaled from 59 to 100 vehicles" / "28.7% → 21.5%"
+
+### Stretch Goal — Reach the 10% Benchmark
+
+Below the savings matrix, a highlighted strip shows the aspirational target:
+
+- **If the fleet idles above 10%**: it shows the additional annual saving available by cutting idling all the way to the 10% top-quartile benchmark — e.g. "Stretch goal — cut idling from 28.7% to the 10% benchmark to save USD 23,710 annually fleet-wide."
+- **If the fleet already idles at or below 10%**: it shows a **Top Quartile Fleet** recognition message instead.
 
 ---
 
@@ -413,5 +404,5 @@ Use this file to:
 
 ---
 
-*Last Updated: 26 May 2026*
+*Last Updated: 4 June 2026*
 *For feedback or issues, contact Revenue Generation International — SEA*

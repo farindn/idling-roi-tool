@@ -64,7 +64,7 @@ Screen transitions call `renderReport()` and `renderCharts()` when switching to 
 
 ### MyGeotab API Layer
 
-The `api` object (`index.html:1884`) wraps all MyGeotab JSON-RPC calls to `https://{serverPath}.geotab.com/apiv1`.
+The `api` object (`index.html:2020`) wraps all MyGeotab JSON-RPC calls to `https://{serverPath}.geotab.com/apiv1`.
 
 **`api.call(method, params)`** — single authenticated POST. Injects `credentials: { sessionId, userName, database }` automatically from `api.session`. Throws `ApiError` on non-2xx or JSON error response.
 
@@ -87,6 +87,7 @@ The `api` object (`index.html:1884`) wraps all MyGeotab JSON-RPC calls to `https
 | `Authenticate` | Login (web only) | `userName`, `database`, `password` |
 | `Get<User>` | Post-login / add-in bootstrap | `search: { name: userName }`, `resultsLimit: 1` — reads `timeZoneId`, `displayCurrency` |
 | `Get<Device>` | Dashboard load + report generation | `search: { fromDate: now }` — returns only active (non-archived) devices |
+| `Get<DeviceStatusInfo>` | Dashboard load + report generation | No search filter — provides each device's last-contact timestamp via `dateTime` |
 | `Get<Group>` | Dashboard load + report generation | No search filter — returns all groups for ancestry walk |
 | `Get<Trip>` | Report generation, per device | `search: { fromDate, toDate, deviceSearch: { id } }`, `resultsLimit: 10000` — batched 50 devices at a time |
 | `Get<FuelAndEnergyUsed>` | Report generation, per device | `search: { fromDate, toDate, deviceSearch: { id } }`, `resultsLimit: 10000` — batched 50 devices at a time |
@@ -100,14 +101,14 @@ Dates passed to Trip and FuelAndEnergyUsed are converted to UTC boundary timesta
 
 MyGeotab organises powertrain/fuel type as a group hierarchy under `GroupPowertrainAndFuelTypeId`. Devices are members of leaf groups (e.g. `GroupDieselId`). The tool resolves fuel type via a two-step process:
 
-**Step 1 — Build ancestry map** (`buildGroupAncestryMap`, `index.html:2255`)
+**Step 1 — Build ancestry map** (`buildGroupAncestryMap`, `index.html:2393`)
 
 Recursively walks each group's `parent.id` chain and caches the result:
 ```
 groupAncestryMap[groupId] = Set { groupId, parentId, grandparentId, ... }
 ```
 
-**Step 2 — Resolve per device** (`resolveFuelType`, `index.html:2279`)
+**Step 2 — Resolve per device** (`resolveFuelType`, `index.html:2417`)
 
 For each device, iterates over its `groups[]`, expands each to ancestors via the map, and checks against `POWERTRAIN_GROUP_MAP`:
 
@@ -135,7 +136,7 @@ Devices that resolve to `None`, `Manual`, or `OtherFuel` are stored in `INVALID_
 
 ### Report Calculation Engine
 
-`computeReport(devices, trips, fuelRecords, settings)` (`index.html:2500`) accepts:
+`computeReport(devices, trips, fuelRecords, settings)` (`index.html:2650`) accepts:
 - `devices` — filtered `configuredVehicles` (valid fuel types only)
 - `trips` — all `Get<Trip>` results for the period
 - `fuelRecords` — all `Get<FuelAndEnergyUsed>` results for the period
@@ -152,18 +153,33 @@ Devices that resolve to `None`, `Manual`, or `OtherFuel` are stored in `INVALID_
 **Fleet-level aggregation:**
 
 ```
-periodDays       = (endDate − startDate) + 1
-annualFactor     = 365 / periodDays
-annualIdleCost   = totalPeriodCost × annualFactor
-savings25        = annualIdleCost × 0.25
-scaleFactor      = max(1, estimatedVehicles / activeVehicles)
-scaledSavings25  = savings25 × scaleFactor
-idlingPct        = totalIdleHours / (totalDrivingHours + totalIdleHours) × 100
-savingsTo10      = annualIdleCost × (1 − 10 / idlingPct)   [only when idlingPct > 10]
-scaledTo10       = savingsTo10 × scaleFactor
+periodDays            = (endDate − startDate) + 1
+annualFactor          = 365 / periodDays
+annualIdleCost        = totalIdleCost × annualFactor
+savings25Period       = totalIdleCost × 0.25
+savings25             = annualIdleCost × 0.25
+scaleFactor           = max(1, estimatedVehicles / activeVehicles)
+scaledTotalIdleCost   = totalIdleCost × scaleFactor
+scaledAnnualIdleCost  = annualIdleCost × scaleFactor
+scaledSavings25Period = savings25Period × scaleFactor
+scaledSavings25       = savings25 × scaleFactor
+idlingPct             = totalIdleHours / (totalDrivingHours + totalIdleHours) × 100
+idealSavings          = annualIdleCost × (1 − 10 / idlingPct)   [only when idlingPct > 10]
+scaledIdealSavings    = idealSavings × scaleFactor
 ```
 
-**Chart bucketing** (`renderCharts`, `index.html:3402`):
+Both the selected-period and annualised figures are computed (and, when an estimated fleet size is set, their scaled variants) so the report can show them side by side without recomputation.
+
+**Report layout** — the financial results render as two sections, each a 2×2 matrix (rows: Existing Fleet / Projected Fleet; columns: Selected period / Annual):
+
+| Section | Cards | Strip below |
+|---------|-------|-------------|
+| **Idling Cost Overview** (baseline) | Total Idle Cost + Scaled Total Idle Cost, each period & annual | Fleet Idling Benchmark |
+| **Saving Opportunity Overview** (25% reduction) | Saving at 25% + Scaled Saving at 25%, each period & annual | Stretch goal — reach the 10% benchmark, or Top Quartile recognition |
+
+The Projected Fleet rows are hidden when no estimated fleet size is set (`scaleFactor <= 1`). Each card carries a `stat-card-sub` line built in `renderReport` that states the calculation basis (period length, price basis, scaling, and the idling-rate change for savings cards).
+
+**Chart bucketing** (`renderCharts`, `index.html:3574`):
 
 | Period length | Bucket | Label format |
 |---------------|--------|-------------|
@@ -175,7 +191,7 @@ scaledTo10       = savingsTo10 × scaleFactor
 
 ### FUEL_TYPES Registry
 
-`FUEL_TYPES` (`index.html:1828`) is the single source of truth for fuel metadata:
+`FUEL_TYPES` (`index.html:1964`) is the single source of truth for fuel metadata:
 
 ```javascript
 FUEL_TYPES[key] = {
