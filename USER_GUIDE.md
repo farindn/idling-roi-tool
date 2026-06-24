@@ -1,6 +1,9 @@
 # User Guide — Idling ROI Tool (Web Version)
 
-**Version:** 1.0.0
+---
+
+**Version:** 1.0.0  
+**Last Updated:** 24 June 2026
 
 **Table of contents**
 
@@ -39,8 +42,6 @@
 The Idling ROI Tool is a web-based application that connects to your MyGeotab database to analyse vehicle idling behaviour and calculate the potential return on investment (ROI) from reducing idle time across your fleet.
 
 This tool is designed for fleet managers and sales professionals to demonstrate the financial impact of idling and project potential savings from idling reduction initiatives.
-
-For the MyGeotab add-in version (no login required, installed directly into MyGeotab), see [USER_GUIDE_ADDIN.md](USER_GUIDE_ADDIN.md).
 
 ## Document Disclaimer
 
@@ -401,7 +402,3 @@ Use this file to:
 - Cross-check totals against MyGeotab's Trips Detail Report
 - Identify outlier vehicles with unusually high or low idling
 - Diagnose data discrepancies reported by customers
-
----
-
-*Version 1.0.0 — Last Updated: 24 June 2026*

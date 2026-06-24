@@ -1,13 +1,15 @@
 # User Guide — Idling ROI Tool (MyGeotab Add-In Version)
 
-**Version:** 1.0.0
+---
+
+**Version:** 1.0.0  
+**Last Updated:** 24 June 2026
 
 **Table of contents**
 
 - Introduction
   - Document Disclaimer
   - Prerequisites
-  - Differences from the Web Version
 - Installation
   - Step 1 — Download the Add-In ZIP
   - Step 2 — Upload to MyGeotab
@@ -41,8 +43,6 @@
 
 The Idling ROI Tool is available as a MyGeotab add-in — installed directly into your MyGeotab database via a ZIP file upload. Once installed, it appears in the **Reports** menu alongside other MyGeotab reports, with no separate login required.
 
-This guide covers the add-in version. For the standalone web version (hosted on GitHub Pages), see [USER_GUIDE.md](USER_GUIDE.md).
-
 ## Document Disclaimer
 
 This document's content, including specifications, procedures, and screenshots, is subject to review and revision. We may make changes, updates, or modifications to product features, specifications, procedures, or the visual presentation without prior notice. Users should consult the current guide version for the most accurate information.
@@ -52,18 +52,6 @@ This document's content, including specifications, procedures, and screenshots, 
 - **MyGeotab Administrator account** — required to install add-ins via System Settings
 - **Powertrain & Fuel Type Configuration** — vehicles must be assigned to the correct Powertrain and Fuel Type groups in MyGeotab; vehicles without valid fuel type assignments will be excluded from calculations
 - **Trip Data** — the selected analysis period must contain trip data for accurate calculations
-
-## Differences from the Web Version
-
-| Aspect | Web Version | Add-In Version |
-|--------|-------------|----------------|
-| Access | Browser, separate URL | MyGeotab → Reports → Idling ROI Tool |
-| Login | Required (enter credentials manually) | Not required (MyGeotab passes credentials automatically) |
-| Sign out | Navbar sign-out button | Sign out from MyGeotab directly |
-| Installation | None | ZIP upload via System Settings (one-time) |
-| Offline use | Accessible from any browser | Requires MyGeotab login |
-
-All report calculations, dashboard settings, export options, and chart features are identical between both versions.
 
 ---
 
@@ -422,7 +410,3 @@ Use this file to:
 - Cross-check totals against MyGeotab's Trips Detail Report
 - Identify outlier vehicles with unusually high or low idling
 - Diagnose data discrepancies reported by customers
-
----
-
-*Version 1.0.0 — Last Updated: 24 June 2026*
