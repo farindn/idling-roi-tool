@@ -1,5 +1,7 @@
 # Idling ROI Tool
 
+**Version:** 1.0.0
+
 A browser-based tool that connects to a MyGeotab database to analyse vehicle idling behaviour and calculate the financial impact of reducing idle time across a fleet.
 
 Built for fleet managers and sales professionals to quantify and present idling ROI — no installation required.
@@ -335,8 +337,6 @@ Idling ROI Tool/
 | Fleet savings scenarios | 25% reduction and "reach 10% benchmark" — annualised and scaled to estimated fleet |
 | Fleet benchmark strip | Positions the fleet against 10% (top quartile) and ~20% (industry average) |
 | Fleet scaling | Projects savings to an estimated total fleet size |
-| Export: Print as PDF | Browser print dialog |
-| Export: Download HTML | Standalone report HTML file |
 | Export: Diagnostic CSV | Per-vehicle breakdown for cross-checking against MyGeotab reports |
 | Currency detection | Auto-detected from user's MyGeotab `displayCurrency` preference |
 | Unassigned vehicles | Lists devices with missing/invalid fuel type with direct link to edit in MyGeotab |
@@ -358,7 +358,3 @@ Idling ROI Tool/
 - After editing `addin/index.html`, always run `python build_zip.py` and commit the new ZIP alongside the source so partners can download it directly from GitHub.
 - The add-in version does not have a login screen — any changes touching `showLoginModal`, `api.authenticate`, or `bootstrapSession` in the web version will not apply to the add-in.
 - Chart.js is pinned to `4.4.0` in `build_zip.py` and in the `<script>` tag of `index.html`. Keep these in sync.
-
----
-
-*For feedback or issues, contact Revenue Generation International — SEA*

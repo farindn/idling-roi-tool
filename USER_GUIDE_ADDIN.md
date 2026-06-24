@@ -1,5 +1,7 @@
 # User Guide — Idling ROI Tool (MyGeotab Add-In Version)
 
+**Version:** 1.0.0
+
 **Table of contents**
 
 - Introduction
@@ -199,12 +201,10 @@ The report header displays:
 
 ### Export Options
 
-Three buttons are available in the header:
+The following export option is available in the header:
 
 | Button | Description |
 |--------|-------------|
-| **Print as PDF** | Opens the browser print dialog for PDF export |
-| **Download HTML** | Downloads a standalone HTML file of the report |
 | **Diagnostic CSV** | Downloads a per-vehicle breakdown for data validation |
 
 ## Activity Trend
@@ -425,5 +425,4 @@ Use this file to:
 
 ---
 
-*Last Updated: 4 June 2026*
-*For feedback or issues, contact Revenue Generation International — SEA*
+*Version 1.0.0 — Last Updated: 24 June 2026*

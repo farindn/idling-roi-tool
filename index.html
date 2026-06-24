@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Idling ROI Tool</title>
+<!-- Idling ROI Tool — Version 1.0.0 (web version) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -1356,7 +1357,7 @@ input, button, textarea, select { font-family: inherit; }
       <div class="nav-icon-wrap"><span class="material-symbols-rounded">speed</span></div>
       <div>
         <div class="nav-title">Idling ROI Tool</div>
-        <div class="nav-subtitle">Powered by MyGeotab</div>
+        <div class="nav-subtitle">Version 1.0.0</div>
       </div>
     </div>
     <div class="nav-user" id="nav-user" onclick="toggleLogout()">
@@ -1640,7 +1641,7 @@ input, button, textarea, select { font-family: inherit; }
           <div class="nav-icon-wrap"><span class="material-symbols-rounded">speed</span></div>
           <div>
             <div class="nav-title">Idling ROI Tool</div>
-            <div class="nav-subtitle">Powered by MyGeotab</div>
+            <div class="nav-subtitle">Version 1.0.0</div>
           </div>
         </div>
       </nav>
@@ -1700,7 +1701,7 @@ input, button, textarea, select { font-family: inherit; }
       <div class="nav-icon-wrap"><span class="material-symbols-rounded">speed</span></div>
       <div>
         <div class="nav-title">Idling ROI Tool</div>
-        <div class="nav-subtitle">Powered by MyGeotab</div>
+        <div class="nav-subtitle">Version 1.0.0</div>
       </div>
     </div>
     <div class="nav-user" id="nav-user-report" onclick="toggleLogout('report')">
@@ -1736,10 +1737,10 @@ input, button, textarea, select { font-family: inherit; }
         </ul>
       </div>
       <div class="report-actions">
-        <button class="btn-export" onclick="demoNotif('print-ok')">
+        <button class="btn-export" style="display:none" onclick="demoNotif('print-ok')">
           <span class="material-symbols-rounded">print</span> Print as PDF
         </button>
-        <button class="btn-export" onclick="demoNotif('export-ok')">
+        <button class="btn-export" style="display:none" onclick="demoNotif('export-ok')">
           <span class="material-symbols-rounded">download</span> Download HTML
         </button>
         <button class="btn-export" id="btn-diag-csv" onclick="downloadPerVehicleCsv()" title="Per-vehicle diagnostic CSV for cross-checking against MyGeotab reports">
